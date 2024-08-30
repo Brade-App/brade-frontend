@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { MessageList, Input } from "react-chat-elements";
 import "react-chat-elements/dist/main.css";
@@ -8,31 +8,37 @@ const TransactionChatbot = ({ transactions }) => {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState("");
   const [analysis, setAnalysis] = useState("");
+  const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    const analyzeTransactions = async () => {
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("pdf", file);
+
       try {
+        console.log("Sending PDF to backend for analysis");
         const response = await axios.post(
-          "http://localhost:5000/api/analyze-transactions",
-          { transactions }
-        );
-        setAnalysis(response.data.analysis);
-        setMessages([
+          "http://localhost:5000/api/analyze-pdf",
+          formData,
           {
-            position: "left",
-            type: "text",
-            text: `Here's a summary of your transactions:\n\n${response.data.analysis}\n\nHow can I help you with your transactions?`,
-          },
-        ]);
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        console.log("Analysis received:", response.data.analysis);
+        setAnalysis(response.data.analysis);
       } catch (error) {
-        console.error("Error analyzing transactions:", error);
+        console.error("Error analyzing PDF:", error);
+        setAnalysis("Error processing PDF. Please try again.");
       }
-    };
-
-    if (transactions.length > 0) {
-      analyzeTransactions();
     }
-  }, [transactions]);
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
+  };
 
   const handleSendMessage = async () => {
     if (inputText.trim() === "") return;
@@ -66,6 +72,31 @@ const TransactionChatbot = ({ transactions }) => {
     }
   };
 
+  useEffect(() => {
+    const analyzeTransactions = async () => {
+      try {
+        const response = await axios.post(
+          "http://localhost:5000/api/analyze-transactions",
+          { transactions }
+        );
+        setAnalysis(response.data.analysis);
+        setMessages([
+          {
+            position: "left",
+            type: "text",
+            text: `Here's a summary of your transactions:\n\n${response.data.analysis}\n\nHow can I help you with your transactions?`,
+          },
+        ]);
+      } catch (error) {
+        console.error("Error analyzing transactions:", error);
+      }
+    };
+
+    if (transactions.length > 0) {
+      analyzeTransactions();
+    }
+  }, [transactions]);
+
   return (
     <div style={{ height: "400px", display: "flex", flexDirection: "column" }}>
       <div style={{ flex: 1, overflowY: "auto" }}>
@@ -82,6 +113,35 @@ const TransactionChatbot = ({ transactions }) => {
         onChange={(e) => setInputText(e.target.value)}
         rightButtons={<button onClick={handleSendMessage}>Send</button>}
       />
+      <input
+        type="file"
+        accept=".pdf"
+        onChange={handleFileUpload}
+        ref={fileInputRef}
+        style={{ display: "none" }}
+      />
+      <button
+        onClick={triggerFileInput}
+        style={{
+          backgroundColor: "red",
+          color: "white",
+          padding: "10px 15px",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+          marginTop: "10px",
+        }}
+      >
+        Upload PDF
+      </button>
+      {analysis ? (
+        <div>
+          <h3>PDF Analysis:</h3>
+          <p>{analysis}</p>
+        </div>
+      ) : (
+        <p>No PDF analysis available yet.</p>
+      )}
     </div>
   );
 };

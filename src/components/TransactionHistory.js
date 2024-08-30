@@ -4,6 +4,7 @@ import axios from "axios";
 import TransactionChatbot from "./TransactionChatbot";
 
 const TransactionHistory = () => {
+  console.log("TransactionHistory component rendered");
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,13 +14,12 @@ const TransactionHistory = () => {
   const accountId = location.state?.accountId;
 
   const fetchTransactions = async () => {
-    console.log("Fetching transactions for account ID:", accountId);
+    console.log("Fetching transactions...");
     try {
       const response = await axios.get(
-        `http://localhost:5000/api/get-transactions?account_id=${accountId}`
+        "http://localhost:5000/api/transactions"
       );
       setTransactions(response.data.transactions);
-      setMessage(response.data.message);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching transactions:", error);
@@ -40,11 +40,6 @@ const TransactionHistory = () => {
   ];
 
   useEffect(() => {
-    if (!accountId) {
-      navigate("/");
-      return;
-    }
-
     //fetchTransactions();
     setTransactions(mockTransactions);
     setLoading(false);
@@ -69,6 +64,7 @@ const TransactionHistory = () => {
     <div>
       <h1>Transaction History</h1>
       {message && <p>{message}</p>}
+
       {transactions.length === 0 ? (
         <p>
           No transactions found. This could be due to:
