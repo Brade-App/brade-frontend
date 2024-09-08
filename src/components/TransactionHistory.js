@@ -1,49 +1,47 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import TransactionChatbot from "./TransactionChatbot";
 
 const TransactionHistory = () => {
-  console.log("TransactionHistory component rendered");
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [message, setMessage] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const accountId = location.state?.accountId;
+
+  // Get the code from URL parameters
+  const searchParams = new URLSearchParams(location.search);
+  const code = searchParams.get("code");
 
   const fetchTransactions = async () => {
-    console.log("Fetching transactions...");
-    try {
-      const response = await axios.get(
-        "http://localhost:5000/api/transactions"
+    if (!code) {
+      setError(
+        "No authorization code found. Please connect your account again."
       );
-      setTransactions(response.data.transactions);
-      setLoading(false);
+      setTimeout(() => setLoading(false), 3000); // 1 second delay
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/sumup/list-transactions",
+        { code }
+      );
+      setTransactions(response.data.transactions.items);
+      setError(null);
     } catch (error) {
       console.error("Error fetching transactions:", error);
       setError("Failed to fetch transactions. Please try again.");
-      setLoading(false);
+    } finally {
+      // Add a delay before setting loading to false
+      setTimeout(() => setLoading(false), 3000); // 1 second delay
     }
   };
 
-  const mockTransactions = [
-    {
-      id: 1,
-      description: "Grocery Store",
-      amount: -50.0,
-      currency: "USD",
-      status: "completed",
-      date: Date.now() / 1000,
-    },
-  ];
-
   useEffect(() => {
-    //fetchTransactions();
-    setTransactions(mockTransactions);
-    setLoading(false);
-  }, [accountId, navigate]);
+    fetchTransactions();
+  }, [code]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const refreshTransactions = () => {
     setLoading(true);
@@ -66,19 +64,7 @@ const TransactionHistory = () => {
       {message && <p>{message}</p>}
 
       {transactions.length === 0 ? (
-        <p>
-          No transactions found. This could be due to:
-          <ul>
-            <li>The connected account is new or has no recent activity</li>
-            <li>
-              Transactions haven't been synced yet (it may take a few minutes)
-            </li>
-            <li>
-              The account doesn't have any transactions in the date range Stripe
-              can access
-            </li>
-          </ul>
-        </p>
+        <p>No transactions found.</p>
       ) : (
         <ul>
           {transactions.map((transaction, index) => (
@@ -91,8 +77,6 @@ const TransactionHistory = () => {
           ))}
         </ul>
       )}
-      <h2>Transaction Analysis Chatbot</h2>
-      <TransactionChatbot transactions={transactions} />
       <button onClick={refreshTransactions}>Refresh Transactions</button>
       <button onClick={() => navigate("/")}>Back to Home</button>
     </div>
