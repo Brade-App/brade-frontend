@@ -38,18 +38,15 @@ const SetNewPassword = () => {
   const [accessToken, setAccessToken] = useState("");
   const [refreshToken, setRefreshToken] = useState("");
 
-  useEffect(() => {
-    console.log("Full URL:", window.location.href);
+  const [success, setSuccess] = useState("");
 
+  useEffect(() => {
     // Extract tokens from the URL hash
     const hash = location.hash.substring(1); // Remove the '#' at the start
     const params = new URLSearchParams(hash);
 
     const access_token = params.get("access_token");
     const refresh_token = params.get("refresh_token");
-
-    console.log("Access Token:", access_token);
-    console.log("Refresh Token:", refresh_token);
 
     setAccessToken(access_token);
     setRefreshToken(refresh_token);
@@ -58,8 +55,8 @@ const SetNewPassword = () => {
     const reauthenticateUser = async () => {
       try {
         const response = await axios.post("/api/reauthenticate", {
-          accessToken: access_token,
-          refreshToken: refresh_token,
+          access_token: access_token,
+          refresh_token: refresh_token,
         });
 
         if (!response.error) {
@@ -73,7 +70,7 @@ const SetNewPassword = () => {
             "Authentication failed. Please try the password reset process again."
           );
           // Optionally, redirect the user back to the login or password reset request page
-          // navigate("/login");
+          navigate("/login");
         }
       } catch (error) {
         console.error("Error during reauthentication:", error);
@@ -115,18 +112,23 @@ const SetNewPassword = () => {
 
     try {
       const response = await axios.post("/api/update_password", {
-        accessToken,
-        refreshToken,
-        newPassword: password,
+        password: password,
+        access_token: accessToken,
+        refresh_token: refreshToken,
       });
 
-      if (response.data.success) {
+      if (response.status === 200) {
         console.log("New password set successfully");
-        navigate("/all-done");
+        setError(""); // Clear any existing errors
+        // Display success message
+        setSuccess("Password changed successfully.");
+        // Navigate to login after 2 seconds
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
       } else {
         setError(
-          response.data.message ||
-            "Failed to set new password. Please try again."
+          response.data.error || "Failed to set new password. Please try again."
         );
       }
     } catch (error) {
@@ -186,6 +188,9 @@ const SetNewPassword = () => {
           Enter your new password below
         </p>
         {error && <p style={{ color: "red", textAlign: "center" }}>{error}</p>}
+        {success && (
+          <p style={{ color: "green", textAlign: "center" }}>{success}</p>
+        )}
         <form onSubmit={handleSubmit} style={{ width: "100%" }}>
           <FormInput
             label="New Password"

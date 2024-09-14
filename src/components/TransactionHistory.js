@@ -24,10 +24,9 @@ const TransactionHistory = () => {
     }
 
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/sumup/list-transactions",
-        { code }
-      );
+      const response = await axios.post("/api/sumup/list-transactions", {
+        code,
+      });
       setTransactions(response.data.transactions.items);
       setError(null);
     } catch (error) {

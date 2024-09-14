@@ -13,7 +13,7 @@ const BankTransactions = () => {
     const fetchTransactions = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/gocardless/list-transactions/${accountId}`
+          `/api/gocardless/list-transactions/${accountId}`
         );
         setTransactions(response.data.transactions);
         console.log(response.data.transactions);

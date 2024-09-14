@@ -12,10 +12,9 @@ const PlaidLink = () => {
   const onSuccess = useCallback(
     async (public_token, metadata) => {
       try {
-        const response = await axios.post(
-          "http://localhost:5000/api/set_access_token",
-          { public_token: public_token }
-        );
+        const response = await axios.post("/api/set_access_token", {
+          public_token: public_token,
+        });
         console.log("Access token set successfully");
         console.log("Attempting to navigate to /success");
         navigate("/transactions", {
@@ -38,9 +37,7 @@ const PlaidLink = () => {
   React.useEffect(() => {
     const createLinkToken = async () => {
       try {
-        const response = await axios.post(
-          "http://localhost:5000/api/create_link_token"
-        );
+        const response = await axios.post("/api/create_link_token");
         setLinkToken(response.data.link_token);
       } catch (error) {
         console.error("Error creating link token:", error);
@@ -51,9 +48,7 @@ const PlaidLink = () => {
 
   const handleGoCardlessLink = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:5000/api/gocardless/choose-a-bank"
-      );
+      const response = await axios.get("/api/gocardless/choose-a-bank");
       console.log(response.data.banks);
       navigate("/gocardless-banks", { state: { banks: response.data.banks } });
     } catch (error) {

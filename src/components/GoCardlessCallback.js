@@ -15,10 +15,9 @@ const GoCardlessCallback = () => {
 
       if (redirectFlowId) {
         try {
-          const response = await axios.post(
-            "http://localhost:5000/api/gocardless-callback",
-            { redirect_flow_id: redirectFlowId }
-          );
+          const response = await axios.post("/api/gocardless-callback", {
+            redirect_flow_id: redirectFlowId,
+          });
           console.log("GoCardless connection successful:", response.data);
           navigate("/bank-accounts");
         } catch (error) {

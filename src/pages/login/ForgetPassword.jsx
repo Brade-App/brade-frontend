@@ -18,13 +18,15 @@ const ForgetPassword = () => {
     try {
       // API call to request password reset and send OTP
       const response = await axios.post("/api/request_password_reset", {
-        email,
+        email: email,
+        redirect_to: `${window.location.origin}/set-new-password`,
       });
 
-      if (response.data.id) {
+      if (response.status === 200) {
         console.log("Password reset OTP sent for:", email);
-        // Navigate to the PasswordReset page
-        navigate("/password-reset", { state: { email } });
+        setSuccess(
+          "We've sent you an email with instructions to reset your password."
+        );
       } else {
         setError(
           response.data.message || "Failed to send OTP. Please try again."

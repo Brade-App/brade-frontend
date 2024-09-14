@@ -1,16 +1,51 @@
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
+import LoadingPage from "../../components/LoadingPage";
 
 const AccountCreatedSuccessly = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const authorizationProcessed = useRef(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      navigate("/main-menu"); // Replace "/main-menu" with the actual path to your main menu page
-    }, 3500); // 3.5 seconds
+    const handleAuthorization = async () => {
+      if (authorizationProcessed.current) return;
+      authorizationProcessed.current = true;
 
-    return () => clearTimeout(timer);
-  }, [navigate]);
+      const urlParams = new URLSearchParams(location.search);
+      const authorization_code = urlParams.get("code");
+
+      if (authorization_code) {
+        console.log("Authorization code:", authorization_code);
+        try {
+          const response = await axios.post("/api/stripe/get_access_token", {
+            code: authorization_code,
+          });
+          console.log("Stripe connection successful:", response.data);
+          // You might want to store some data from the response in localStorage or context
+        } catch (error) {
+          console.error("Error connecting Stripe account:", error);
+          setError("Failed to connect Stripe account. Please try again.");
+        }
+      }
+
+      setIsLoading(false);
+
+      // Set a timeout to navigate after showing the success message
+      setTimeout(() => {
+        navigate("/main-menu"); // Replace "/main-menu" with the actual path to your main menu page
+      }, 3500); // 3.5 seconds
+    };
+
+    handleAuthorization();
+  }, [location, navigate]);
+
+  if (isLoading) {
+    return <LoadingPage />;
+  }
 
   return (
     <div
@@ -59,6 +94,18 @@ const AccountCreatedSuccessly = () => {
         >
           You will be redirected to your dashboard shortly.
         </p>
+        {error && (
+          <p
+            style={{
+              fontFamily: "Inter, sans-serif",
+              fontSize: "14px",
+              color: "red",
+              marginTop: "10px",
+            }}
+          >
+            {error}
+          </p>
+        )}
       </div>
     </div>
   );

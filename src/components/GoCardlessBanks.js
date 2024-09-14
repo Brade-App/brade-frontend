@@ -11,10 +11,9 @@ const GoCardlessBanks = () => {
     // Here you would typically make an API call to initiate the bank connection
     console.log(`Selected bank with ID: ${bankId}`);
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/gocardless/build-a-link",
-        { institution_id: bankId }
-      );
+      const response = await axios.post("/api/gocardless/build-a-link", {
+        institution_id: bankId,
+      });
       console.log(response.data.requisition);
       window.location.href = response.data.requisition.link;
       localStorage.setItem("requisistion_id", response.data.requisition.id);

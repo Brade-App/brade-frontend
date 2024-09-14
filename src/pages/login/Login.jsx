@@ -27,7 +27,9 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Error logging in:", error);
-      setError("An error occurred. Please try again.");
+      setError(
+        error.response?.data?.error || "An error occurred during sign up"
+      );
     }
   };
 

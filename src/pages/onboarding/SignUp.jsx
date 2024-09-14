@@ -21,6 +21,9 @@ const SignUp = () => {
     number: false,
   });
 
+  // New state to track if user has started typing
+  const [hasStartedTyping, setHasStartedTyping] = useState(false);
+
   // Check password requirements
   useEffect(() => {
     // Simulate loading time (remove this in production)
@@ -44,6 +47,32 @@ const SignUp = () => {
     e.preventDefault();
     setError("");
 
+    // Validate full name
+    if (!fullName.trim()) {
+      setError("Full Name is required");
+      return;
+    }
+
+    // Validate email
+    if (!email.trim()) {
+      setError("Email is required");
+      return;
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    // Validate password requirements
+    if (!Object.values(passwordRequirements).every(Boolean)) {
+      setError("Password does not meet all requirements");
+      return;
+    }
+
+    // Validate password and confirm password
     if (password !== confirmPassword) {
       setError("Passwords don't match");
       return;
@@ -51,22 +80,20 @@ const SignUp = () => {
 
     try {
       const response = await axios.post("/api/signup_user", {
-        fullName,
-        email,
-        password,
+        email: email,
+        password: password,
+        options: { data: { full_name: fullName } },
       });
-      console.log("Sign up successful:", response.data);
-
-      // Store full name and email in local storage
+      console.log(response.data);
+      localStorage.setItem("id", response.data.id);
       localStorage.setItem("fullName", fullName);
       localStorage.setItem("email", email);
-
-      // Navigate to OTP confirmation page
       navigate("/otp-confirmation", { state: { email } });
     } catch (error) {
       console.error("Error signing up:", error);
       setError(
-        error.response?.data?.error || "An error occurred during sign up"
+        error.response?.data?.error ||
+          "An error occurred during sign up. Please try again."
       );
     }
   };
@@ -81,8 +108,12 @@ const SignUp = () => {
         display: "inline-block",
         marginRight: "10px",
         borderRadius: "100px",
-        backgroundColor: met ? "#f564a9" : "#f2f2f2",
-        color: met ? "white" : "#606060",
+        backgroundColor: hasStartedTyping
+          ? met
+            ? "#34c759"
+            : "#ff3b30"
+          : "#f2f2f2",
+        color: hasStartedTyping ? "white" : "#606060",
       }}
     >
       <span
@@ -157,7 +188,10 @@ const SignUp = () => {
             type="password"
             id="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setHasStartedTyping(true);
+            }}
             required
             hint="Enter Password"
           />

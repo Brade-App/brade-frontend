@@ -32,7 +32,7 @@ const BusinessInformation = () => {
     const email = localStorage.getItem("email");
 
     try {
-      const response = await axios.post("/api/record_new_user", {
+      const response = await axios.post("/api/record_business_information", {
         id: userId,
         full_name: fullName,
         email: email,
@@ -47,12 +47,10 @@ const BusinessInformation = () => {
         "Business information submitted successfully:",
         response.data
       );
-      navigate("/stripe-integration"); // Navigate to the new StripeIntegration page
+      navigate("/link-your-pos"); // Navigate to the new StripeIntegration page
     } catch (error) {
       console.error("Error submitting business information:", error);
-      setError(
-        error.response?.data?.error || "An error occurred. Please try again."
-      );
+      setError("An error occurred. Please try again.");
     }
   };
 

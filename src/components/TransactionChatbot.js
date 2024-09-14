@@ -18,15 +18,11 @@ const TransactionChatbot = ({ transactions }) => {
 
       try {
         console.log("Sending PDF to backend for analysis");
-        const response = await axios.post(
-          "http://localhost:5000/api/analyze-pdf",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        const response = await axios.post("/api/analyze-pdf", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
         console.log("Analysis received:", response.data.analysis);
         setAnalysis(response.data.analysis);
       } catch (error) {
@@ -51,7 +47,7 @@ const TransactionChatbot = ({ transactions }) => {
     setInputText("");
 
     try {
-      const response = await axios.post("http://localhost:5000/api/chat", {
+      const response = await axios.post("/api/chat", {
         message: inputText,
         transactions,
       });
@@ -75,10 +71,9 @@ const TransactionChatbot = ({ transactions }) => {
   useEffect(() => {
     const analyzeTransactions = async () => {
       try {
-        const response = await axios.post(
-          "http://localhost:5000/api/analyze-transactions",
-          { transactions }
-        );
+        const response = await axios.post("/api/analyze-transactions", {
+          transactions,
+        });
         setAnalysis(response.data.analysis);
         setMessages([
           {

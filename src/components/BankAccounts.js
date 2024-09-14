@@ -13,7 +13,7 @@ const BankAccounts = () => {
       try {
         const requisition_id = localStorage.getItem("requisistion_id");
         const response = await axios.get(
-          `http://localhost:5000/api/gocardless/list-accounts/${requisition_id}`
+          `/api/gocardless/list-accounts/${requisition_id}`
         );
         setAccounts(response.data.accounts.accounts);
         console.log(response.data.accounts.accounts);

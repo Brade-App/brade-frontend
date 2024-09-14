@@ -15,10 +15,7 @@ const StripeCallback = () => {
 
       if (code) {
         try {
-          const response = await axios.post(
-            "http://localhost:5000/api/stripe-callback",
-            { code }
-          );
+          const response = await axios.post("/api/stripe-callback", { code });
           console.log("Stripe connection successful:", response.data);
           navigate("/transactions");
         } catch (error) {

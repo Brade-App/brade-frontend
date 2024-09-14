@@ -19,7 +19,7 @@ import SumUpCallback from "./components/SumUpCallback";
 import SignUp from "./pages/onboarding/SignUp";
 import OtpConfirmation from "./pages/onboarding/OtpConfirmation";
 import BusinessInformation from "./pages/onboarding/BusinessInformation";
-import StripeIntegration from "./pages/onboarding/StripeIntegration";
+import LinkYourPOSAccount from "./pages/onboarding/LinkYourPOSAccount";
 import AccountCreatedSuccessly from "./pages/onboarding/AccountCreatedSuccessly";
 import MainMenu from "./pages/main_menu/MainMenu";
 import Dashboard from "./pages/main_menu/Dashboard";
@@ -30,6 +30,13 @@ import ForgetPassword from "./pages/login/ForgetPassword";
 import PasswordReset from "./pages/login/PasswordReset";
 import SetNewPassword from "./pages/login/SetNewPassword";
 import AllDone from "./pages/login/AllDone";
+import LinkYourPOS from "./pages/onboarding/LinkYourPOS";
+import QueuedPOSLinks from "./pages/onboarding/QueuedPOSLinks";
+import LinkBusinessBankAccount from "./pages/onboarding/LinkBusinessBankAccount";
+import GoCardlessRedirect from "./pages/onboarding/GoCardlessRedirect";
+import StripeRedirect from "./pages/onboarding/StripeRedirect";
+import SquareRedirect from "./pages/onboarding/SquareRedirect";
+import SumUpRedirect from "./pages/onboarding/SumUpRedirect";
 
 function App() {
   return (
@@ -52,11 +59,23 @@ function App() {
           <Route path="/sumup-connect" element={<SumUpConnect />} />
           <Route path="/sumup-callback" element={<SumUpCallback />} />
           <Route path="/otp-confirmation" element={<OtpConfirmation />} />
-          <Route path="/business-details" element={<BusinessInformation />} />
-          <Route path="/stripe-integration" element={<StripeIntegration />} />
+          <Route
+            path="/business-information"
+            element={<BusinessInformation />}
+          />
+          <Route path="/link-your-pos" element={<LinkYourPOS />} />
+          <Route path="/queued-pos-links" element={<QueuedPOSLinks />} />
+          <Route
+            path="/link-your-pos-account"
+            element={<LinkYourPOSAccount />}
+          />
           <Route
             path="/account-created-success"
             element={<AccountCreatedSuccessly />}
+          />
+          <Route
+            path="/link-business-bank"
+            element={<LinkBusinessBankAccount />}
           />
           <Route path="/main-menu" element={<MainMenu />}>
             <Route path="dashboard" element={<Dashboard />} />
@@ -69,6 +88,10 @@ function App() {
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="/set-new-password" element={<SetNewPassword />} />
           <Route path="/all-done" element={<AllDone />} />
+          <Route path="/gocardless-redirect" element={<GoCardlessRedirect />} />
+          <Route path="/stripe-redirect" element={<StripeRedirect />} />
+          <Route path="/square-redirect" element={<SquareRedirect />} />
+          <Route path="/sumup-redirect" element={<SumUpRedirect />} />
         </Routes>
       </div>
     </Router>

@@ -48,16 +48,20 @@ const OtpConfirmation = () => {
       }
       const userId = response.data.id;
       localStorage.setItem("id", userId);
-      navigate("/business-details", { state: { userId } });
+      navigate("/business-information", { state: { userId } });
     } catch (error) {
       console.error("Error verifying OTP:", error);
-      setError("An error occurred. Please try again.");
+      setError(
+        error.response?.data?.error || "An error occurred during sign up"
+      );
     }
   };
 
   const handleResendCode = async () => {
     try {
-      await axios.post("/api/resend_otp", { email });
+      await axios.post("/api/resend_otp", {
+        email,
+      });
       setError(""); // Clear any existing errors
       alert("A new OTP has been sent to your email.");
     } catch (error) {

@@ -16,7 +16,7 @@ const SuccessPage = () => {
       if (sessionId) {
         try {
           const response = await axios.get(
-            `http://localhost:5000/api/get-account-id?session_id=${sessionId}`
+            `/api/get-account-id?session_id=${sessionId}`
           );
           const accountId = response.data.account_id;
           console.log("Account ID:", accountId);
