@@ -132,10 +132,10 @@ const BusinessInformation = () => {
             required
             hint="Select your state"
             options={[
-              { value: "ENG", label: "England" },
-              { value: "SCT", label: "Scotland" },
-              { value: "WLS", label: "Wales" },
-              { value: "NIR", label: "Northern Ireland" },
+              { value: "England", label: "England" },
+              { value: "Scotland", label: "Scotland" },
+              { value: "Wales", label: "Wales" },
+              { value: "Northern Ireland", label: "Northern Ireland" },
               // Add more counties as needed
             ]}
           />
@@ -147,7 +147,7 @@ const BusinessInformation = () => {
             onChange={(e) => setCountry(e.target.value)}
             required
             hint="Select your country"
-            options={[{ value: "GB", label: "United Kingdom" }]}
+            options={[{ value: "United Kingdom", label: "United Kingdom" }]}
           />
           <div style={{ width: "100%", marginTop: "20px" }}>
             <button

@@ -24,7 +24,7 @@ import AccountCreatedSuccessly from "./pages/onboarding/AccountCreatedSuccessly"
 import MainMenu from "./pages/main_menu/MainMenu";
 import Dashboard from "./pages/main_menu/Dashboard";
 import Reports from "./pages/main_menu/Reports";
-import Preferences from "./pages/main_menu/Preferences";
+import Settings from "./pages/main_menu/Settings";
 import Login from "./pages/login/Login";
 import ForgetPassword from "./pages/login/ForgetPassword";
 import PasswordReset from "./pages/login/PasswordReset";
@@ -80,7 +80,7 @@ function App() {
           <Route path="/main-menu" element={<MainMenu />}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="reports" element={<Reports />} />
-            <Route path="preferences" element={<Preferences />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
           <Route path="/" element={<Navigate replace to="/signup" />} />
           <Route path="/login" element={<Login />} />

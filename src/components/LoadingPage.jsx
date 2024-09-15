@@ -1,6 +1,6 @@
 import React from "react";
 
-const LoadingPage = () => {
+const LoadingPage = ({ color = "#f564a9", backgroundColor = "#f9f9f9" }) => {
   return (
     <div
       style={{
@@ -8,7 +8,7 @@ const LoadingPage = () => {
         justifyContent: "center",
         alignItems: "center",
         height: "100vh",
-        backgroundColor: "#F9F9F9",
+        backgroundColor: backgroundColor,
       }}
     >
       <div
@@ -16,7 +16,7 @@ const LoadingPage = () => {
           width: "50px",
           height: "50px",
           border: "5px solid #d9d9d9",
-          borderTop: "5px solid #f564a9",
+          borderTop: `5px solid ${color}`,
           borderRadius: "50%",
           animation: "spin 1s linear infinite",
         }}

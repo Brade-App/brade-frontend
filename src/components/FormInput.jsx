@@ -13,6 +13,7 @@ const FormInput = ({
   options,
   multiple,
   error,
+  style,
   ...props
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -65,6 +66,7 @@ const FormInput = ({
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
+    ...style,
   };
 
   const dropdownStyle = {
@@ -179,7 +181,7 @@ const FormInput = ({
                   cursor: "pointer",
                 }}
               >
-                {showPassword ? <FiEyeOff /> : <FiEye />}
+                {showPassword ? <FiEyeOff /> : <FiEyeOff />}
               </button>
             )}
           </div>
