@@ -2,7 +2,7 @@
   "name": "brade",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://bradeserver.vercel.app",
+  "proxy": "https://127.0.0.1:5000",
   "dependencies": {
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",

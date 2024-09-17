@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import Profile from "./Profile";
 
@@ -6,6 +7,16 @@ const MainMenu = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [selectedLink, setSelectedLink] = useState(location.pathname);
+  const [user, setUser] = useState({
+    fullName: "",
+    email: "",
+    profilePhoto: "/images/profileplaceholder.png",
+    salonName: "",
+    businessAddress: "",
+    postcode: "",
+    state: "",
+    country: "",
+  });
 
   useEffect(() => {
     if (
@@ -17,11 +28,35 @@ const MainMenu = () => {
     }
   }, [location.pathname, navigate]);
 
-  // Assume you have a user object with these properties
-  const user = {
-    username: "John Doe",
-    profilePhoto: "/images/profileplaceholder.png", // Replace with actual photo path
-  };
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      const userId = localStorage.getItem("id");
+      if (!userId) {
+        console.error("User ID not found in local storage");
+        return;
+      }
+
+      try {
+        const response = await axios.get(
+          `/api/database/get-user-details/${userId}`
+        );
+        setUser({
+          fullName: response.data.full_name,
+          email: response.data.email,
+          profilePhoto: "/images/profileplaceholder.png",
+          salonName: response.data.salon_name,
+          businessAddress: response.data.business_address,
+          postcode: response.data.postcode,
+          state: response.data.state,
+          country: response.data.country,
+        });
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
+
+    fetchUserDetails();
+  }, []);
 
   const getLinkStyle = (path) => ({
     ...linkStyle,
@@ -105,6 +140,7 @@ const MainMenu = () => {
         {/* User profile section */}
         <Link
           to="/main-menu/profile"
+          state={{ user: user }}
           style={{
             ...userProfileStyle,
             ...getLinkStyle("/main-menu/profile"),
@@ -117,7 +153,7 @@ const MainMenu = () => {
             alt="User Profile"
             style={profilePhotoStyle}
           />
-          <span style={usernameStyle}>{user.username}</span>
+          <span style={usernameStyle}>{user.fullName}</span>
         </Link>
       </nav>
 

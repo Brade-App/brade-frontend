@@ -20,6 +20,9 @@ const Login = () => {
       });
 
       if (response.data.id) {
+        localStorage.setItem("id", response.data.id);
+        localStorage.setItem("access_token", response.data.access_token);
+        localStorage.setItem("refresh_token", response.data.refresh_token);
         // Navigate to the main menu or dashboard
         navigate("/main-menu");
       } else {
