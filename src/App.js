@@ -37,6 +37,7 @@ import GoCardlessRedirect from "./pages/onboarding/GoCardlessRedirect";
 import StripeRedirect from "./pages/onboarding/StripeRedirect";
 import SquareRedirect from "./pages/onboarding/SquareRedirect";
 import SumUpRedirect from "./pages/onboarding/SumUpRedirect";
+import Profile from "./pages/main_menu/Profile"; // Import the new Profile component
 
 function App() {
   return (
@@ -81,6 +82,8 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="reports" element={<Reports />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="profile" element={<Profile />} />{" "}
+            {/* Add this new route */}
           </Route>
           <Route path="/" element={<Navigate replace to="/signup" />} />
           <Route path="/login" element={<Login />} />

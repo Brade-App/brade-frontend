@@ -7,7 +7,7 @@ const LoadingPage = ({ color = "#f564a9", backgroundColor = "#f9f9f9" }) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        height: "100vh",
+        height: "100%",
         backgroundColor: backgroundColor,
       }}
     >

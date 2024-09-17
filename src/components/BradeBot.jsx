@@ -11,6 +11,7 @@ const BradeBot = ({ expenses, revenues, financialGoals, month }) => {
   const [isInputMode, setIsInputMode] = useState(false);
   const [previousMessage, setPreviousMessage] = useState("");
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const chatbotRef = useRef(null);
 
   const handleMessageClick = () => {
@@ -26,7 +27,8 @@ const BradeBot = ({ expenses, revenues, financialGoals, month }) => {
   const handleSendMessage = async () => {
     if (inputText.trim() !== "") {
       setIsInputMode(false);
-      setMessage(<LoadingPage color="#222222" backgroundColor="#f1f2f3" />);
+      setIsLoading(true);
+      setMessage(""); // Clear the message while loading
 
       if (!month) {
         try {
@@ -44,6 +46,8 @@ const BradeBot = ({ expenses, revenues, financialGoals, month }) => {
         } catch (error) {
           console.error("Error sending message:", error);
           setMessage("Sorry, I encountered an error. Please try again.");
+        } finally {
+          setIsLoading(false);
         }
       } else {
         try {
@@ -61,6 +65,8 @@ const BradeBot = ({ expenses, revenues, financialGoals, month }) => {
         } catch (error) {
           console.error("Error sending message:", error);
           setMessage("Sorry, I encountered an error. Please try again.");
+        } finally {
+          setIsLoading(false);
         }
       }
       setInputText("");
@@ -136,7 +142,18 @@ const BradeBot = ({ expenses, revenues, financialGoals, month }) => {
             height: "100%",
           }}
         >
-          {isInputMode ? (
+          {isLoading ? (
+            <div
+              style={{
+                height: "100%",
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "center",
+              }}
+            >
+              <LoadingPage color="#222222" backgroundColor="transparent" />
+            </div>
+          ) : isInputMode ? (
             <textarea
               value={inputText}
               onChange={handleInputChange}
@@ -165,7 +182,7 @@ const BradeBot = ({ expenses, revenues, financialGoals, month }) => {
                 height: "100%",
               }}
             >
-              {React.isValidElement(message) ? message : <div>{message}</div>}
+              {message}
             </div>
           )}
         </div>
@@ -222,7 +239,10 @@ const BradeBot = ({ expenses, revenues, financialGoals, month }) => {
 };
 
 BradeBot.propTypes = {
-  transactions: PropTypes.array.isRequired,
+  expenses: PropTypes.array.isRequired,
+  revenues: PropTypes.array.isRequired,
+  financialGoals: PropTypes.array.isRequired,
+  month: PropTypes.string,
 };
 
 export default BradeBot;

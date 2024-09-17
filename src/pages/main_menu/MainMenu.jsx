@@ -1,9 +1,21 @@
-import React, { useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import Profile from "./Profile";
 
 const MainMenu = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [selectedLink, setSelectedLink] = useState(location.pathname);
+
+  useEffect(() => {
+    if (
+      location.pathname === "/main-menu" ||
+      location.pathname === "/main-menu/"
+    ) {
+      navigate("/main-menu/dashboard");
+      setSelectedLink("/main-menu/dashboard");
+    }
+  }, [location.pathname, navigate]);
 
   // Assume you have a user object with these properties
   const user = {
@@ -91,14 +103,22 @@ const MainMenu = () => {
         </div>
 
         {/* User profile section */}
-        <div style={userProfileStyle}>
+        <Link
+          to="/main-menu/profile"
+          style={{
+            ...userProfileStyle,
+            ...getLinkStyle("/main-menu/profile"),
+            textDecoration: "none",
+          }}
+          onClick={() => setSelectedLink("/main-menu/profile")}
+        >
           <img
             src={user.profilePhoto}
             alt="User Profile"
             style={profilePhotoStyle}
           />
           <span style={usernameStyle}>{user.username}</span>
-        </div>
+        </Link>
       </nav>
 
       {/* Main content area wrapper */}
