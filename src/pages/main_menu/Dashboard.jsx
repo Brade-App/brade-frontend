@@ -81,10 +81,10 @@ const Dashboard = () => {
     const fetchMonthlyRevenues = async () => {
       try {
         const response = await axios.get(
-          `/api/database/get-monthly-revenues/${userId}`
+          `/api/database/get-monthly-sales/${userId}`
         );
         console.log("Monthly revenues:", response.data);
-        setMonthlyRevenues(response.data.monthly_revenues);
+        setMonthlyRevenues(response.data.monthly_sales);
       } catch (error) {
         console.error("Error fetching monthly revenues:", error);
         setMonthlyRevenues(mockMonthlyRevenues);
@@ -94,12 +94,12 @@ const Dashboard = () => {
     const fetchMonthlyRevenueData = async () => {
       try {
         const response = await axios.get(
-          `/api/database/get-average-monthly-revenue/${userId}`
+          `/api/database/get-average-monthly-sales/${userId}`
         );
         console.log("Monthly revenue data:", response.data);
         setMonthlyRevenueData({
           value: response.data.value,
-          percentageChange: response.data.percentage_change,
+          percentageChange: response.data.percent_change,
         });
       } catch (error) {
         console.error("Error fetching monthly revenue data:", error);
