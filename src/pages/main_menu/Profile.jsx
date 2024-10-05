@@ -6,9 +6,9 @@ import axios from "axios";
 const Profile = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState(location.state?.user || {});
+  const [user, setUser] = useState({});
   const [profilePhoto, setProfilePhoto] = useState(
-    user.profilePhoto || "/images/profileplaceholder.png"
+    "/images/profileplaceholder.png"
   );
   const [isEditingPersonal, setIsEditingPersonal] = useState(false);
   const [isEditingBusiness, setIsEditingBusiness] = useState(false);
@@ -24,13 +24,32 @@ const Profile = () => {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
 
   useEffect(() => {
-    if (location.state?.user) {
-      setUser(location.state.user);
-      setOriginalUser(location.state.user);
-    } else {
-      navigate("/main-menu");
-    }
-  }, [location.state, navigate]);
+    const fetchUserDetails = async () => {
+      const userId = localStorage.getItem("id");
+      if (!userId) {
+        console.error("User ID not found in local storage");
+        navigate("/main-menu");
+        return;
+      }
+
+      try {
+        const response = await axios.get(
+          `/api/database/get-user-details/${userId}`
+        );
+        const userData = response.data;
+        setUser(userData);
+        setOriginalUser(userData);
+        setProfilePhoto(
+          userData.profilePhoto || "/images/profileplaceholder.png"
+        );
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+        navigate("/main-menu");
+      }
+    };
+
+    fetchUserDetails();
+  }, [navigate]);
 
   const handlePhotoChange = (event) => {
     const file = event.target.files[0];
@@ -68,7 +87,6 @@ const Profile = () => {
               },
             }
           );
-          console.log("Personal information updated:", personalResponse.data);
 
           const newEmail = document.getElementById("email").value;
           let emailChanged = false;
@@ -91,8 +109,6 @@ const Profile = () => {
             if (!emailResponse.ok) {
               throw new Error(emailData.error || "Failed to update email");
             }
-
-            console.log("Email updated:", emailData);
             emailChanged = true;
           }
 
@@ -131,7 +147,6 @@ const Profile = () => {
               },
             }
           );
-          console.log("Business information updated:", businessResponse.data);
           setBusinessSuccess("Business information updated successfully");
         } catch (error) {
           console.error("Error updating business information:", error);
@@ -170,7 +185,6 @@ const Profile = () => {
               },
             }
           );
-          console.log("Password updated:", passwordResponse.data);
           setPasswordSuccess("Password updated successfully");
         } catch (error) {
           console.error("Error updating password:", error);
@@ -214,7 +228,8 @@ const Profile = () => {
         country: document.getElementById("country").value,
       }));
 
-      console.log("Changes saved successfully");
+      // Emit a custom event to notify that user details have changed
+      window.dispatchEvent(new Event("userDetailsUpdated"));
     } catch (error) {
       console.error("Error saving changes:", error);
       // Handle error (e.g., show an error message to the user)
@@ -317,7 +332,7 @@ const Profile = () => {
               <input
                 id="fullName"
                 type="text"
-                defaultValue={user.fullName}
+                defaultValue={user.full_name}
                 style={inputStyle}
                 disabled={!isEditingPersonal}
                 placeholder="e.g John Doe"
@@ -380,7 +395,7 @@ const Profile = () => {
             <input
               id="businessAddress"
               type="text"
-              defaultValue={user.businessAddress}
+              defaultValue={user.business_address}
               style={inputStyle}
               disabled={!isEditingBusiness}
               placeholder="e.g 10 Alex Avenue"

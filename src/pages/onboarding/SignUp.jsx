@@ -84,7 +84,6 @@ const SignUp = () => {
         password: password,
         options: { data: { full_name: fullName } },
       });
-      console.log(response.data);
       localStorage.setItem("id", response.data.id);
       localStorage.setItem("fullName", fullName);
       localStorage.setItem("email", email);

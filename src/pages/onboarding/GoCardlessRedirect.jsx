@@ -18,7 +18,6 @@ const GoCardlessRedirect = () => {
               requisition_id: requisitionId,
             }
           );
-          console.log(response.data);
           localStorage.removeItem("requisistion_id");
           window.opener.postMessage(
             { type: "GOCARDLESS_CONNECT_SUCCESS" },

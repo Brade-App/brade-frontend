@@ -1,10 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import BradeBot from "../../components/BradeBot";
 import jsPDF from "jspdf";
+import { InsertComment } from "@mui/icons-material";
 
 const Reports = () => {
   const [activeTab, setActiveTab] = useState("sales");
+  const [monthlyExpenses, setMonthlyExpenses] = useState([]);
+  const [monthlySales, setMonthlySales] = useState([]);
+  const [userDetails, setUserDetails] = useState({
+    businessAddress: "",
+    city: "",
+    state: "",
+    postcode: "",
+  });
+  const [allExpenses, setAllExpenses] = useState([]);
+  const [allSales, setAllSales] = useState([]);
 
   const tabStyle = (isActive) => ({
     display: "inline-flex",
@@ -52,27 +63,43 @@ const Reports = () => {
     setActiveTab(tabName);
   };
 
-  const generatePDF = (month, activeTab) => {
+  const generatePDF = async (month, activeTab) => {
     const monthDate = new Date(currentYear, month - 1, 1);
     const monthName = monthDate.toLocaleString("default", { month: "long" });
     const yearString = monthDate.getFullYear().toString();
 
-    generatePDFContent(
-      monthName,
-      "123 Business Street", // Replace with actual address
-      "City", // Replace with actual city
-      "State", // Replace with actual state
-      "12345", // Replace with actual postal code
-      activeTab
-    );
+    try {
+      const expenses = await fetchMonthlyExpenses(month, currentYear);
+      const sales = await fetchMonthlySales(month, currentYear);
+
+      generatePDFContent(
+        monthName,
+        userDetails.businessAddress,
+        userDetails.state,
+        userDetails.country,
+        userDetails.postcode,
+        activeTab,
+        expenses,
+        sales
+      );
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
   };
 
-  const downloadCSV = (month, activeTab) => {
+  const downloadCSV = async (month, activeTab) => {
     const monthDate = new Date(currentYear, month - 1, 1);
     const monthName = monthDate.toLocaleString("default", { month: "long" });
     const yearString = monthDate.getFullYear().toString();
 
-    generateCSVContent(monthName, yearString, activeTab);
+    try {
+      const expenses = await fetchMonthlyExpenses(month, currentYear);
+      const sales = await fetchMonthlySales(month, currentYear);
+
+      generateCSVContent(monthName, yearString, activeTab, expenses, sales);
+    } catch (error) {
+      console.error("Error downloading CSV:", error);
+    }
   };
 
   const months = [
@@ -91,10 +118,93 @@ const Reports = () => {
   ];
 
   const currentDate = new Date();
-  const currentMonth = currentDate.getMonth();
+  const currentMonth = currentDate.getMonth() + 1;
   const currentYear = currentDate.getFullYear();
 
-  console.log(currentDate);
+  const fetchMonthlyExpenses = async (month, year) => {
+    try {
+      const userId = localStorage.getItem("id");
+      const response = await axios.post(
+        `/api/database/get-expenses-for-month/${userId}`,
+        {
+          month: month,
+          year: year,
+        }
+      );
+      return response.data.expenses;
+    } catch (error) {
+      console.error("Error fetching monthly expenses:", error);
+      return [];
+    }
+  };
+
+  const fetchMonthlySales = async (month, year) => {
+    try {
+      const userId = localStorage.getItem("id");
+      const response = await axios.post(
+        `/api/database/get-sales-for-month/${userId}`,
+        {
+          month: month,
+          year: year,
+        }
+      );
+      return response.data.sales;
+    } catch (error) {
+      console.error("Error fetching monthly sales:", error);
+      return [];
+    }
+  };
+
+  const fetchUserDetails = async () => {
+    try {
+      const userId = localStorage.getItem("id");
+      if (!userId) {
+        console.error("User ID not found in local storage");
+        return;
+      }
+      const response = await axios.get(
+        `/api/database/get-user-details/${userId}`
+      );
+      setUserDetails({
+        businessAddress: response.data.business_address,
+        country: response.data.country,
+        state: response.data.state,
+        postcode: response.data.postcode,
+      });
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+    }
+  };
+
+  const fetchAllExpenses = async () => {
+    try {
+      const userId = localStorage.getItem("id");
+      const response = await axios.get(
+        `/api/database/get-all-expenses/${userId}`
+      );
+      setAllExpenses(response.data.expenses);
+    } catch (error) {
+      console.error("Error fetching all expenses:", error);
+      setAllExpenses([]);
+    }
+  };
+
+  const fetchAllSales = async () => {
+    try {
+      const userId = localStorage.getItem("id");
+      const response = await axios.get(`/api/database/get-all-sales/${userId}`);
+      setAllSales(response.data.sales);
+    } catch (error) {
+      console.error("Error fetching all sales:", error);
+      setAllSales([]);
+    }
+  };
+
+  useEffect(() => {
+    fetchUserDetails();
+    fetchAllExpenses();
+    fetchAllSales();
+  }, []);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -157,7 +267,7 @@ const Reports = () => {
           }}
         >
           {months
-            .slice(0, currentMonth + 1)
+            .slice(0, currentMonth)
             .reverse()
             .map((month, index) => {
               const monthDate = new Date(currentYear, currentMonth - index, 1);
@@ -169,17 +279,13 @@ const Reports = () => {
                   </h2>
                   <button
                     style={actionButtonStyle}
-                    onClick={() =>
-                      generatePDF(currentMonth + 1 - index, activeTab)
-                    }
+                    onClick={() => generatePDF(currentMonth - index, activeTab)}
                   >
                     View PDF
                   </button>
                   <button
                     style={actionButtonStyle}
-                    onClick={() =>
-                      downloadCSV(currentMonth + 1 - index, activeTab)
-                    }
+                    onClick={() => downloadCSV(currentMonth - index, activeTab)}
                   >
                     Download CSV
                   </button>
@@ -188,8 +294,8 @@ const Reports = () => {
             })}
         </div>
       </div>
-      <div style={{ position: "absolute", bottom: "80px", right: "40px" }}>
-        <BradeBot transactions={[]} />
+      <div style={{ marginTop: "30px" }}>
+        <BradeBot expenses={allExpenses} revenues={allSales} report={true} />
       </div>
     </div>
   );
@@ -201,7 +307,9 @@ const generatePDFContent = (
   city,
   state,
   postalCode,
-  activeTab
+  activeTab,
+  monthlyExpenses,
+  monthlySales
 ) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
@@ -219,7 +327,8 @@ const generatePDFContent = (
     city,
     state,
     postalCode,
-    activeTab
+    activeTab,
+    monthlyExpenses
   ) => {
     // Add dark header
     doc.setFillColor(34, 34, 34);
@@ -229,11 +338,14 @@ const generatePDFContent = (
     doc.addImage("/images/logowhite.png", "PNG", 15, 10, 30, 7);
 
     // Add company information in white text
+
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(8);
-    doc.text("123 Business Street, City, Country", 15, 23);
+    doc.text("Email: hello@bradehq.com", 15, 23);
+    /*
     doc.text("Phone: +1 234 567 8900", 15, 28);
-    doc.text("Email: hello@bradehq.com", 15, 33);
+    doc.text("123 Business Street, City, Country", 15, 33);
+    */
 
     // Add title aligned to the right
     doc.setFontSize(40);
@@ -266,6 +378,7 @@ const generatePDFContent = (
   const addNewPage = () => {
     doc.addPage();
     addFooter(doc, pageWidth, pageHeight, footerHeight);
+    return 40; // Return a new starting y-position for content on the new page
   };
 
   // Add initial page content
@@ -284,26 +397,27 @@ const generatePDFContent = (
   addFooter(doc, pageWidth, pageHeight, footerHeight);
 
   const headers = ["Description", "Amount"];
-  const data = getDataForActiveTab(activeTab);
+  const data = getDataForActiveTab(activeTab, monthlyExpenses, monthlySales);
 
   // Table headers
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
-  headers.forEach((header, i) => {
-    doc.text(header, i === 0 ? 15 : pageWidth - 35, startY + 10);
-  });
-  doc.setDrawColor(230, 230, 230);
-  doc.line(10, startY + 15, pageWidth - 10, startY + 15);
+  if (activeTab != "income") {
+    headers.forEach((header, i) => {
+      doc.text(header, i === 0 ? 15 : pageWidth - 35, startY + 10);
+    });
+    doc.setDrawColor(230, 230, 230);
+    doc.line(10, startY + 15, pageWidth - 10, startY + 15);
+  }
 
   // Table rows
   doc.setFont("helvetica", "normal");
-  let y = startY + 25;
+  let y = activeTab === "income" ? startY + 5 : startY + 25;
 
   data.forEach((row, i) => {
     if (y > maxY) {
-      addNewPage();
-      y = startY;
+      y = addNewPage();
     }
 
     if (row.isHeader) {
@@ -311,16 +425,21 @@ const generatePDFContent = (
       doc.setFontSize(14);
       doc.setTextColor(0, 0, 0);
       doc.text(row.description, 15, y);
+      if (activeTab === "income") {
+        y += 10;
+        headers.forEach((header, i) => {
+          doc.text(header, i === 0 ? 15 : pageWidth - 35, y);
+        });
+        y -= 5;
+      }
     } else {
+      doc.setFont("helvetica", "normal");
       doc.setFontSize(12);
       doc.setTextColor(0, 0, 0);
-      doc.text(row.description, 15, y);
-      doc.text(row.amount, pageWidth - 35, y);
 
       if (row.subtext) {
         if (y + 5 > maxY) {
-          addNewPage();
-          y = startY;
+          y = addNewPage();
         }
         doc.setFontSize(10);
         doc.setTextColor(80, 80, 80);
@@ -333,20 +452,23 @@ const generatePDFContent = (
         doc.setFont("helvetica", "normal");
       }
 
-      if (row.isNetIncome) {
+      doc.text(row.description, 15, y);
+      doc.text(row.amount, pageWidth - 35, y);
+
+      if (row.isTotal || row.isNetIncome) {
         doc.setDrawColor(0, 0, 0);
-        doc.line(10, y - 5, pageWidth - 10, y - 5);
+        doc.line(10, y - 10, pageWidth - 10, y - 10);
       }
     }
 
-    if (
-      i < data.length - 1 &&
-      !row.isHeader &&
-      !row.isTotal &&
-      !data[i + 1].isHeader
-    ) {
+    // Draw a line after every row, including the last one
+    if (!row.isHeader) {
       doc.setDrawColor(230, 230, 230);
-      doc.line(10, y - 10, pageWidth - 10, y - 10);
+    } else {
+      doc.setDrawColor(0, 0, 0);
+    }
+    if (!row.isTotal && !row.isNetIncome) {
+      doc.line(10, y + 10, pageWidth - 10, y + 10);
     }
 
     y += row.subtext ? 25 : row.isHeader ? 15 : 20;
@@ -381,103 +503,86 @@ const generatePDFContent = (
   window.open(pdfUrl, "_blank");
 };
 
-const getDataForActiveTab = (activeTab) => {
-  // Define the data based on the active tab
-  return activeTab === "expense"
-    ? [
-        { description: "Payroll", amount: "£1000.00", subtext: "" },
-        { description: "Rent", amount: "£200.00", subtext: "" },
-        { description: "Utilities", amount: "£3000.00", subtext: "" },
-        { description: "Others", amount: "£500.00", subtext: "" },
-      ]
-    : activeTab === "sales"
-    ? [
-        {
-          description: "Online Revenue",
-          amount: "£100.00",
-          subtext: "(from online booking system e.g. deposits)",
-        },
-        {
-          description: "In-store Revenue",
-          amount: "£200.00",
-          subtext:
-            "(from card readers/devices as payment services & treatments)",
-        },
-        {
-          description: "Average Revenue per customer",
-          amount: "£300.00",
-          subtext: "(ARPU)",
-        },
-        {
-          description: "Total VAT",
-          amount: "£400.00",
-          subtext: "(20% of each service aggregated to produce total VAT)",
-        },
-      ]
-    : [
-        { description: "Revenue", amount: "", isHeader: true },
-        {
-          description: "Online Revenue",
-          amount: "£100.00",
-          subtext: "(from online booking system e.g. deposits)",
-        },
-        {
-          description: "In-store Revenue",
-          amount: "£200.00",
-          subtext:
-            "(from card readers/devices as payment services & treatments)",
-        },
-        { description: "Total Revenue", amount: "£300.00", isTotal: true },
-        { description: "Expenses", amount: "", isHeader: true },
-        { description: "Payroll", amount: "£1000.00", subtext: "" },
-        { description: "Rent", amount: "£200.00", subtext: "" },
-        { description: "Utilities", amount: "£3000.00", subtext: "" },
-        { description: "Others", amount: "£500.00", subtext: "" },
-        { description: "Total Expenses", amount: "£4700.00", isTotal: true },
-        { description: "Net Income", amount: "£-4400.00", isNetIncome: true },
-      ];
+const getDataForActiveTab = (activeTab, monthlyExpenses, monthlySales) => {
+  if (activeTab === "expense") {
+    return monthlyExpenses.map((expense) => ({
+      description: expense.description,
+      amount: `£${expense.amount.toFixed(2)}`,
+      subtext: "",
+    }));
+  } else if (activeTab === "sales") {
+    return monthlySales.map((sale) => ({
+      description: sale.description,
+      amount: `£${sale.amount.toFixed(2)}`,
+      subtext: sale.subtext || "",
+    }));
+  } else {
+    // Income statement
+    const expenses = monthlyExpenses.map((expense) => ({
+      description: expense.description,
+      amount: `£${expense.amount.toFixed(2)}`,
+      subtext: "",
+    }));
+
+    const totalRevenue = monthlySales.reduce(
+      (sum, sale) => sum + sale.amount,
+      0
+    );
+    const totalExpenses = monthlyExpenses.reduce(
+      (sum, expense) => sum + expense.amount,
+      0
+    );
+
+    return [
+      { description: "Revenue", amount: "", isHeader: true },
+      ...monthlySales.map((sale) => ({
+        description: sale.description,
+        amount: `£${sale.amount.toFixed(2)}`,
+        subtext: sale.subtext || "",
+      })),
+      {
+        description: "Total Revenue",
+        amount: `£${totalRevenue.toFixed(2)}`,
+        isTotal: true,
+      },
+      { description: "Expenses", amount: "", isHeader: true },
+      ...expenses,
+      {
+        description: "Total Expenses",
+        amount: `£${totalExpenses.toFixed(2)}`,
+        isTotal: true,
+      },
+      {
+        description: "Net Income",
+        amount: `£${(totalRevenue - totalExpenses).toFixed(2)}`,
+        isNetIncome: true,
+      },
+    ];
+  }
 };
 
-const generateCSVContent = (month, year, activeTab) => {
-  // Define the data based on the active tab
-  const data =
-    activeTab === "expense"
-      ? [
-          { description: "Payroll", amount: 1000.0 },
-          { description: "Rent", amount: 200.0 },
-          { description: "Utilities", amount: 3000.0 },
-          { description: "Others", amount: 500.0 },
-        ]
-      : activeTab === "sales"
-      ? [
-          { description: "Online Revenue", amount: 100.0 },
-          { description: "In-store Revenue", amount: 200.0 },
-          { description: "Average Revenue per customer", amount: 300.0 },
-          { description: "Total VAT", amount: 400.0 },
-        ]
-      : [
-          { description: "Online Revenue", amount: 100.0 },
-          { description: "In-store Revenue", amount: 200.0 },
-          { description: "Total Revenue", amount: 300.0 },
-          { description: "Payroll", amount: 1000.0 },
-          { description: "Rent", amount: 200.0 },
-          { description: "Utilities", amount: 3000.0 },
-          { description: "Others", amount: 500.0 },
-          { description: "Total Expenses", amount: 4700.0 },
-          { description: "Net Income", amount: -4400.0 },
-        ];
-
-  // Calculate total
-  const total = data.reduce((sum, row) => sum + row.amount, 0);
-
-  // Add total row
-  data.push({ description: "Total", amount: total });
+const generateCSVContent = (
+  month,
+  year,
+  activeTab,
+  monthlyExpenses,
+  monthlySales
+) => {
+  const data = getDataForActiveTab(activeTab, monthlyExpenses, monthlySales);
 
   // Convert data to CSV string
   let csvContent = "Description,Amount\n";
-  csvContent += data
-    .map((row) => `"${row.description}",${row.amount.toFixed(2)}`)
-    .join("\n");
+
+  data.forEach((row) => {
+    if (row.isHeader) {
+      csvContent += `${row.description},,\n`;
+    } else {
+      csvContent += `"${row.description}",${row.amount}\n`;
+    }
+    if (row.subtext) {
+      csvContent += `"${row.subtext}",,\n`;
+    }
+  });
 
   // Create a Blob with the CSV content
   const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });

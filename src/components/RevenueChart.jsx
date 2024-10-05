@@ -22,7 +22,6 @@ ChartJS.register(
 );
 
 const RevenueChart = ({ revenues }) => {
-  console.log(revenues);
   const months = revenues.map((revenue) => revenue.month);
   const amounts = revenues.map((revenue) => revenue.amount);
 

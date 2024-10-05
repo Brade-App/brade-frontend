@@ -19,7 +19,6 @@ const SquareRedirect = () => {
               code: code,
             }
           );
-          console.log(response.data);
           window.opener.postMessage({ type: "SQUARE_CONNECT_SUCCESS" }, "*");
         } catch (error) {
           console.error("Error handling Square redirect:", error);

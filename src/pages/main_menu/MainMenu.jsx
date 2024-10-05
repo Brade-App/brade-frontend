@@ -43,7 +43,8 @@ const MainMenu = () => {
         setUser({
           fullName: response.data.full_name,
           email: response.data.email,
-          profilePhoto: "/images/profileplaceholder.png",
+          profilePhoto:
+            response.data.profile_photo || "/images/profileplaceholder.png",
           salonName: response.data.salon_name,
           businessAddress: response.data.business_address,
           postcode: response.data.postcode,
@@ -56,6 +57,18 @@ const MainMenu = () => {
     };
 
     fetchUserDetails();
+
+    // Add event listener for userDetailsUpdated
+    const handleUserDetailsUpdate = () => {
+      fetchUserDetails();
+    };
+
+    window.addEventListener("userDetailsUpdated", handleUserDetailsUpdate);
+
+    // Clean up the event listener
+    return () => {
+      window.removeEventListener("userDetailsUpdated", handleUserDetailsUpdate);
+    };
   }, []);
 
   const getLinkStyle = (path) => ({

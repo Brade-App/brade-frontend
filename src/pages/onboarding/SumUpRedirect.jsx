@@ -21,7 +21,6 @@ const SumUpRedirect = () => {
               code: code,
             }
           );
-          console.log(response.data);
           window.opener.postMessage({ type: "SUMUP_CONNECT_SUCCESS" }, "*");
         } catch (error) {
           console.error("Error handling SumUp redirect:", error);

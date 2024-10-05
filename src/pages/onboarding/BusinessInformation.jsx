@@ -42,11 +42,6 @@ const BusinessInformation = () => {
         state: state,
         country: country,
       });
-
-      console.log(
-        "Business information submitted successfully:",
-        response.data
-      );
       navigate("/link-your-pos"); // Navigate to the new StripeIntegration page
     } catch (error) {
       console.error("Error submitting business information:", error);

@@ -3,7 +3,7 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import LoadingPage from "./LoadingPage";
 
-const BradeBot = ({ expenses, revenues, financialGoals, month }) => {
+const BradeBot = ({ expenses, revenues, financialGoals, report }) => {
   const [message, setMessage] = useState(
     "👋 Hi there, I'm BradeBot! I'm here to answer any questions about your salon's finances"
   );
@@ -30,7 +30,7 @@ const BradeBot = ({ expenses, revenues, financialGoals, month }) => {
       setIsLoading(true);
       setMessage(""); // Clear the message while loading
 
-      if (!month) {
+      if (!report) {
         try {
           const response = await axios.post(
             "/api/openai/analyze-monthly-transactions",
@@ -52,12 +52,11 @@ const BradeBot = ({ expenses, revenues, financialGoals, month }) => {
       } else {
         try {
           const response = await axios.post(
-            "/api/openai/categorise-monthly-transactions",
+            "/api/openai/report-financial-performance",
             {
               message: inputText,
               expenses: expenses,
               revenues: revenues,
-              month: month,
             }
           );
           setMessage(response.data.response);
@@ -123,6 +122,7 @@ const BradeBot = ({ expenses, revenues, financialGoals, month }) => {
         height: "130px",
         width: "100%",
         borderRadius: "14px",
+        marginBottom: "50px",
       };
 
   return (

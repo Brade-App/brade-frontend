@@ -13,12 +13,10 @@ const QueuedPOSLinks = () => {
     const storedState = localStorage.getItem("onboarding_state");
     if (storedState) {
       const parsedState = JSON.parse(storedState);
-      console.log("parsedState", parsedState);
       const updatedQueue = parsedState.posQueue.slice(1); // Remove the first item
       setPosQueue(updatedQueue);
       setCurrentPOS(updatedQueue.length > 0 ? updatedQueue[0] : null);
       setSelectedBank(parsedState.selectedBank);
-      console.log("parsedState", parsedState);
       // Remove the stored state after retrieving it
       localStorage.removeItem("onboarding_state");
 

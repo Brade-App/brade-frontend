@@ -17,6 +17,10 @@ const Settings = () => {
   const [salesAccessTokens, setSalesAccessTokens] = useState({});
   const [expensesAccessTokens, setExpensesAccessTokens] = useState({});
   const [error, setError] = useState(null);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [hasNotificationChanges, setHasNotificationChanges] = useState(false);
+  const [monthlySummary, setMonthlySummary] = useState(false);
+  const [actionRequired, setActionRequired] = useState(false);
 
   useEffect(() => {
     const fetchBanks = async () => {
@@ -68,9 +72,24 @@ const Settings = () => {
       }
     };
 
+    const fetchNotificationSettings = async () => {
+      try {
+        const userId = localStorage.getItem("id");
+        const response = await axios.get(
+          `/api/database/get-notification-settings/${userId}`
+        );
+        const { monthly_summary, action_required } = response.data;
+        setMonthlySummary(monthly_summary);
+        setActionRequired(action_required);
+      } catch (error) {
+        console.error("Error fetching notification settings:", error);
+      }
+    };
+
     fetchBanks();
     fetchFinancialGoals();
     fetchAccessTokens();
+    fetchNotificationSettings();
   }, []);
 
   const sliderStyle = (value, min, max) => ({
@@ -228,6 +247,18 @@ const Settings = () => {
     }
   `;
 
+  const saveButtonStyle = {
+    padding: "5px 10px",
+    backgroundColor: "#f564a9",
+    color: "#ffffff",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "12px",
+    fontWeight: 500,
+    fontFamily: "Inter, sans-serif",
+    cursor: "pointer",
+  };
+
   const handlePOSConnection = async (pos, isConnected) => {
     setError(null); // Clear any previous error messages
     if (isConnected) {
@@ -251,7 +282,6 @@ const Settings = () => {
             return newTokens;
           });
         }
-        console.log(`${pos} disconnected`);
       } catch (error) {
         console.error(`Error disconnecting from ${pos}:`, error);
         // Handle error (e.g., show an error message to the user)
@@ -353,161 +383,277 @@ const Settings = () => {
     return () => window.removeEventListener("message", handleMessage);
   }, []);
 
+  const handleSave = async () => {
+    try {
+      const userId = localStorage.getItem("id");
+      await axios.post(`/api/database/update-financial-goals/${userId}`, {
+        financial_goals: {
+          margin_goal: marginGoal,
+          revenue_target: revenueTarget,
+          retention_rate: retentionRate,
+        },
+      });
+      setHasChanges(false);
+      alert("Financial goals saved successfully!");
+    } catch (error) {
+      console.error("Error saving financial goals:", error);
+      alert("Failed to save financial goals. Please try again.");
+    }
+  };
+
+  const handleSaveNotifications = async () => {
+    try {
+      const userId = localStorage.getItem("id");
+      // Replace this with the actual API call to save notification settings
+      await axios.post(`/api/database/update-notification-settings/${userId}`, {
+        monthly_summary: document.querySelector(
+          'input[name="monthlySummary"]:checked'
+        ).value,
+        action_required: document.querySelector(
+          'input[name="actionRequired"]:checked'
+        ).value,
+        email_notifications: document.querySelector(
+          'input[name="emailNotifications"]:checked'
+        ).value,
+      });
+      setHasNotificationChanges(false);
+      alert("Notification settings saved successfully!");
+    } catch (error) {
+      console.error("Error saving notification settings:", error);
+      alert("Failed to save notification settings. Please try again.");
+    }
+  };
+
   return (
     <div>
       <style>{sliderThumbStyle}</style>
       <style>{radioInputStyle}</style>
-      <h1 style={titleStyle}>Financial Goals</h1>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <button style={buttonStyle}>
-          <span style={labelStyle}>Set Margin Goal</span>
-          <span style={descriptionStyle}>
-            Setting a margin goal helps you monitor your profitability and
-            adjust pricing strategies accordingly.
-          </span>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={marginGoal}
-            onChange={(e) => setMarginGoal(e.target.value)}
-            style={sliderStyle(marginGoal, 0, 100)}
-          />
-          <div style={minMaxStyle}>
-            <span>0%</span>
-            <span>100%</span>
-          </div>
-          <div style={infoStyle}>
-            Current margin goal:{" "}
-            <span style={highlightStyle}>{marginGoal}%</span> • Industry
-            standard: 7-9%
-          </div>
-        </button>
-        <button style={buttonStyle}>
-          <span style={labelStyle}>Set Revenue Target</span>
-          <span style={descriptionStyle}>
-            Setting revenue targets helps you stay focused on achieving your
-            sales goals and measure performance over time.
-          </span>
-          <input
-            type="range"
-            min="0"
-            max="20000"
-            step="10"
-            value={revenueTarget}
-            onChange={(e) => setRevenueTarget(e.target.value)}
-            style={sliderStyle(revenueTarget, 0, 20000)}
-          />
-          <div style={minMaxStyle}>
-            <span>£0</span>
-            <span>£20,000</span>
-          </div>
-          <div style={infoStyle}>
-            Current: <span style={highlightStyle}>£{revenueTarget}</span> •
-            Industry standard: £6,000
-          </div>
-        </button>
-        <button style={buttonStyle}>
-          <span style={labelStyle}>Set Retention Rate</span>
-          <span style={descriptionStyle}>
-            Measures the percentage of clients who return. A higher rate shows
-            strong customer loyalty.
-          </span>
-          <input
-            type="range"
-            min="0"
-            max="30"
-            value={retentionRate}
-            onChange={(e) => setRetentionRate(e.target.value)}
-            style={sliderStyle(retentionRate, 0, 30)}
-          />
-          <div style={minMaxStyle}>
-            <span>0%</span>
-            <span>30%</span>
-          </div>
-          <div style={infoStyle}>
-            Current goal: <span style={highlightStyle}>{retentionRate}%</span> •
-            Industry standard: 10%-15%
-          </div>
-        </button>
+      <div style={{ position: "relative", width: "100%" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "20px",
+          }}
+        >
+          <h1 style={titleStyle}>Financial Goals</h1>
+          {hasChanges && (
+            <button style={saveButtonStyle} onClick={handleSave}>
+              Save
+            </button>
+          )}
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <button style={buttonStyle}>
+            <span style={labelStyle}>Set Margin Goal</span>
+            <span style={descriptionStyle}>
+              Setting a margin goal helps you monitor your profitability and
+              adjust pricing strategies accordingly.
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={marginGoal}
+              onChange={(e) => {
+                setMarginGoal(e.target.value);
+                setHasChanges(true);
+              }}
+              style={sliderStyle(marginGoal, 0, 100)}
+            />
+            <div style={minMaxStyle}>
+              <span>0%</span>
+              <span>100%</span>
+            </div>
+            <div style={infoStyle}>
+              Current margin goal:{" "}
+              <span style={highlightStyle}>{marginGoal}%</span> • Industry
+              standard: 7-9%
+            </div>
+          </button>
+          <button style={buttonStyle}>
+            <span style={labelStyle}>Set Revenue Target</span>
+            <span style={descriptionStyle}>
+              Setting revenue targets helps you stay focused on achieving your
+              sales goals and measure performance over time.
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="20000"
+              step="10"
+              value={revenueTarget}
+              onChange={(e) => {
+                setRevenueTarget(e.target.value);
+                setHasChanges(true);
+              }}
+              style={sliderStyle(revenueTarget, 0, 20000)}
+            />
+            <div style={minMaxStyle}>
+              <span>£0</span>
+              <span>£20,000</span>
+            </div>
+            <div style={infoStyle}>
+              Current: <span style={highlightStyle}>£{revenueTarget}</span> •
+              Industry standard: £6,000
+            </div>
+          </button>
+          <button style={buttonStyle}>
+            <span style={labelStyle}>Set Retention Rate</span>
+            <span style={descriptionStyle}>
+              Measures the percentage of clients who return. A higher rate shows
+              strong customer loyalty.
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="30"
+              value={retentionRate}
+              onChange={(e) => {
+                setRetentionRate(e.target.value);
+                setHasChanges(true);
+              }}
+              style={sliderStyle(retentionRate, 0, 30)}
+            />
+            <div style={minMaxStyle}>
+              <span>0%</span>
+              <span>30%</span>
+            </div>
+            <div style={infoStyle}>
+              Current goal: <span style={highlightStyle}>{retentionRate}%</span>{" "}
+              • Industry standard: 10%-15%
+            </div>
+          </button>
+        </div>
       </div>
 
-      <h1 style={titleStyle}>Notifications</h1>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <button style={buttonStyle}>
-          <span style={labelStyle}>Monthly Summary</span>
-          <span style={descriptionStyle}>
-            Receive a monthly summary of financial performance
-          </span>
-          <div style={radioContainerStyle}>
-            <div style={radioGroupStyle}>
-              <label style={radioLabelStyle} className="custom-radio">
-                <input
-                  type="radio"
-                  name="monthlySummary"
-                  value="enable"
-                  defaultChecked
-                />
-                <span className="radio-button"></span>
-                Enable
-              </label>
-              <label style={radioLabelStyle} className="custom-radio">
-                <input type="radio" name="monthlySummary" value="disable" />
-                <span className="radio-button"></span>
-                Disable
-              </label>
+      <div style={{ position: "relative", width: "100%" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "20px",
+          }}
+        >
+          <h1 style={titleStyle}>Notifications</h1>
+          {hasNotificationChanges && (
+            <button style={saveButtonStyle} onClick={handleSaveNotifications}>
+              Save
+            </button>
+          )}
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <button style={buttonStyle}>
+            <span style={labelStyle}>Monthly Summary</span>
+            <span style={descriptionStyle}>
+              Receive a monthly summary of financial performance
+            </span>
+            <div style={radioContainerStyle}>
+              <div style={radioGroupStyle}>
+                <label style={radioLabelStyle} className="custom-radio">
+                  <input
+                    type="radio"
+                    name="monthlySummary"
+                    value="enable"
+                    checked={monthlySummary}
+                    onChange={() => {
+                      setMonthlySummary(true);
+                      setHasNotificationChanges(true);
+                    }}
+                  />
+                  <span className="radio-button"></span>
+                  Enable
+                </label>
+                <label style={radioLabelStyle} className="custom-radio">
+                  <input
+                    type="radio"
+                    name="monthlySummary"
+                    value="disable"
+                    checked={!monthlySummary}
+                    onChange={() => {
+                      setMonthlySummary(false);
+                      setHasNotificationChanges(true);
+                    }}
+                  />
+                  <span className="radio-button"></span>
+                  Disable
+                </label>
+              </div>
             </div>
-          </div>
-        </button>
-        <button style={buttonStyle}>
-          <span style={labelStyle}>Action Required</span>
-          <span style={descriptionStyle}>
-            Receive notifications for any actions required on integrations or
-            settings
-          </span>
-          <div style={radioContainerStyle}>
-            <div style={radioGroupStyle}>
-              <label style={radioLabelStyle} className="custom-radio">
-                <input
-                  type="radio"
-                  name="actionRequired"
-                  value="enable"
-                  defaultChecked
-                />
-                <span className="radio-button"></span>
-                Enable
-              </label>
-              <label style={radioLabelStyle} className="custom-radio">
-                <input type="radio" name="actionRequired" value="disable" />
-                <span className="radio-button"></span>
-                Disable
-              </label>
+          </button>
+          <button style={buttonStyle}>
+            <span style={labelStyle}>Action Required</span>
+            <span style={descriptionStyle}>
+              Receive notifications for any actions required on integrations or
+              settings
+            </span>
+            <div style={radioContainerStyle}>
+              <div style={radioGroupStyle}>
+                <label style={radioLabelStyle} className="custom-radio">
+                  <input
+                    type="radio"
+                    name="actionRequired"
+                    value="enable"
+                    checked={actionRequired}
+                    onChange={() => {
+                      setActionRequired(true);
+                      setHasNotificationChanges(true);
+                    }}
+                  />
+                  <span className="radio-button"></span>
+                  Enable
+                </label>
+                <label style={radioLabelStyle} className="custom-radio">
+                  <input
+                    type="radio"
+                    name="actionRequired"
+                    value="disable"
+                    checked={!actionRequired}
+                    onChange={() => {
+                      setActionRequired(false);
+                      setHasNotificationChanges(true);
+                    }}
+                  />
+                  <span className="radio-button"></span>
+                  Disable
+                </label>
+              </div>
             </div>
-          </div>
-        </button>
-        <button style={buttonStyle}>
-          <span style={labelStyle}>Email Notifications</span>
-          <span style={descriptionStyle}>Receive notifications via email</span>
-          <div style={radioContainerStyle}>
-            <div style={radioGroupStyle}>
-              <label style={radioLabelStyle} className="custom-radio">
-                <input
-                  type="radio"
-                  name="emailNotifications"
-                  value="enable"
-                  defaultChecked
-                />
-                <span className="radio-button"></span>
-                Enable
-              </label>
-              <label style={radioLabelStyle} className="custom-radio">
-                <input type="radio" name="emailNotifications" value="disable" />
-                <span className="radio-button"></span>
-                Disable
-              </label>
+          </button>
+          <button style={{ ...buttonStyle, visibility: "hidden" }}>
+            <span style={labelStyle}>Email Notifications</span>
+            <span style={descriptionStyle}>
+              Receive notifications via email
+            </span>
+            <div style={radioContainerStyle}>
+              <div style={radioGroupStyle}>
+                <label style={radioLabelStyle} className="custom-radio">
+                  <input
+                    type="radio"
+                    name="emailNotifications"
+                    value="enable"
+                    onChange={() => setHasNotificationChanges(true)}
+                  />
+                  <span className="radio-button"></span>
+                  Enable
+                </label>
+                <label style={radioLabelStyle} className="custom-radio">
+                  <input
+                    type="radio"
+                    name="emailNotifications"
+                    value="disable"
+                    defaultChecked
+                    onChange={() => setHasNotificationChanges(true)}
+                  />
+                  <span className="radio-button"></span>
+                  Disable
+                </label>
+              </div>
             </div>
-          </div>
-        </button>
+          </button>
+        </div>
       </div>
 
       <h1 style={titleStyle}>Integrations</h1>

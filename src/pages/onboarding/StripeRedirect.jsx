@@ -19,14 +19,31 @@ const StripeRedirect = () => {
               code: code,
             }
           );
-          console.log(response.data);
-          window.opener.postMessage({ type: "STRIPE_CONNECT_SUCCESS" }, "*");
+          if (window.opener && window.opener.postMessage) {
+            window.opener.postMessage({ type: "STRIPE_CONNECT_SUCCESS" }, "*");
+          } else {
+            console.log(
+              "Stripe connection successful, but unable to communicate with opener."
+            );
+          }
         } catch (error) {
           console.error("Error handling Stripe redirect:", error);
-          window.opener.postMessage({ type: "STRIPE_CONNECT_ERROR" }, "*");
+          if (window.opener && window.opener.postMessage) {
+            window.opener.postMessage({ type: "STRIPE_CONNECT_ERROR" }, "*");
+          } else {
+            console.log(
+              "Stripe connection failed, and unable to communicate with opener."
+            );
+          }
         }
       } else {
-        window.opener.postMessage({ type: "STRIPE_CONNECT_ERROR" }, "*");
+        if (window.opener && window.opener.postMessage) {
+          window.opener.postMessage({ type: "STRIPE_CONNECT_ERROR" }, "*");
+        } else {
+          console.log(
+            "No code received, and unable to communicate with opener."
+          );
+        }
       }
       window.close();
     };

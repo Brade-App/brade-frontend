@@ -24,7 +24,6 @@ ChartJS.register(
 );
 
 const ExpensesChart = ({ expenses }) => {
-  console.log(expenses);
   const months = expenses.map((expense) => expense.month);
   const amounts = expenses.map((expense) => expense.amount);
 

@@ -19,12 +19,10 @@ const AccountCreatedSuccessly = () => {
       const authorization_code = urlParams.get("code");
 
       if (authorization_code) {
-        console.log("Authorization code:", authorization_code);
         try {
           const response = await axios.post("/api/stripe/get_access_token", {
             code: authorization_code,
           });
-          console.log("Stripe connection successful:", response.data);
           // You might want to store some data from the response in localStorage or context
         } catch (error) {
           console.error("Error connecting Stripe account:", error);

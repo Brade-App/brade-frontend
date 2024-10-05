@@ -16,6 +16,10 @@ const Dashboard = () => {
     value: 0,
     percentageChange: 0,
   });
+  const [revenuePerClient, setRevenuePerClient] = useState({
+    value: 0,
+    percentageChange: 0,
+  });
 
   // Mock data for fallback
   const mockMonthlyExpenses = [
@@ -52,7 +56,6 @@ const Dashboard = () => {
         const response = await axios.get(
           `/api/database/get-financial-goals/${userId}`
         );
-        console.log("Financial goals:", response.data.financial_goals);
         setFinancialGoals(response.data.financial_goals);
       } catch (error) {
         console.error("Error fetching financial goals:", error);
@@ -70,7 +73,6 @@ const Dashboard = () => {
         const response = await axios.get(
           `/api/database/get-monthly-expenses/${userId}`
         );
-        console.log("Monthly expenses:", response.data);
         setMonthlyExpenses(response.data.monthly_expenses);
       } catch (error) {
         console.error("Error fetching monthly expenses:", error);
@@ -83,7 +85,6 @@ const Dashboard = () => {
         const response = await axios.get(
           `/api/database/get-monthly-sales/${userId}`
         );
-        console.log("Monthly revenues:", response.data);
         setMonthlyRevenues(response.data.monthly_sales);
       } catch (error) {
         console.error("Error fetching monthly revenues:", error);
@@ -94,9 +95,8 @@ const Dashboard = () => {
     const fetchMonthlyRevenueData = async () => {
       try {
         const response = await axios.get(
-          `/api/database/get-average-monthly-sales/${userId}`
+          `/api/database/get-current-month-sales-total/${userId}`
         );
-        console.log("Monthly revenue data:", response.data);
         setMonthlyRevenueData({
           value: response.data.value,
           percentageChange: response.data.percent_change,
@@ -114,9 +114,8 @@ const Dashboard = () => {
     const fetchMonthlyExpenseData = async () => {
       try {
         const response = await axios.get(
-          `/api/database/get-average-monthly-expense/${userId}`
+          `/api/database/get-current-month-expenses-total/${userId}`
         );
-        console.log("Monthly expense data:", response.data);
         setMonthlyExpenseData({
           value: response.data.value,
           percentageChange: response.data.percent_change,
@@ -131,11 +130,30 @@ const Dashboard = () => {
       }
     };
 
+    const fetchRevenuePerClientData = async () => {
+      try {
+        const response = await axios.get(
+          `/api/database/get-current-month-revenue-per-client/${userId}`
+        );
+        setRevenuePerClient({
+          value: response.data.value,
+          percentageChange: response.data.percent_change,
+        });
+      } catch (error) {
+        console.error("Error fetching revenue per client data:", error);
+        setRevenuePerClient({
+          value: 0,
+          percentageChange: 0,
+        });
+      }
+    };
+
     fetchFinancialGoals();
     fetchMonthlyExpenses();
     fetchMonthlyRevenues();
     fetchMonthlyRevenueData();
     fetchMonthlyExpenseData();
+    fetchRevenuePerClientData();
   }, []);
 
   return (
@@ -174,7 +192,7 @@ const Dashboard = () => {
                   monthlyRevenueData.percentageChange >= 0
                 )}
               >
-                {monthlyRevenueData.percentageChange >= 0 ? "+" : ""}
+                {monthlyRevenueData.percentageChange > 0 ? "+" : ""}
                 {monthlyRevenueData.percentageChange.toFixed(1)}%
               </span>
             </div>
@@ -212,8 +230,15 @@ const Dashboard = () => {
           <div style={contentStyle}>
             <span style={titleStyle}>Revenue per Client</span>
             <div style={dataContainer}>
-              <span style={dataStyle}>£1,200</span>
-              <span style={percentageStyle(true)}>+3.7%</span>
+              <span style={dataStyle}>
+                £{revenuePerClient.value.toLocaleString()}
+              </span>
+              <span
+                style={percentageStyle(revenuePerClient.percentageChange >= 0)}
+              >
+                {revenuePerClient.percentageChange > 0 ? "+" : ""}
+                {revenuePerClient.percentageChange.toFixed(1)}%
+              </span>
             </div>
           </div>
         </button>
