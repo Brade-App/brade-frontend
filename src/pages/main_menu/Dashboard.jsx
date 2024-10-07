@@ -7,7 +7,11 @@ import BradeBot from "../../components/BradeBot";
 const Dashboard = () => {
   const [monthlyExpenses, setMonthlyExpenses] = useState([]);
   const [monthlyRevenues, setMonthlyRevenues] = useState([]);
-  const [financialGoals, setFinancialGoals] = useState(null);
+  const [financialGoals, setFinancialGoals] = useState({
+    marginGoal: 8,
+    revenueTarget: 6000,
+    retentionRate: 15,
+  });
   const [monthlyRevenueData, setMonthlyRevenueData] = useState({
     value: 0,
     percentageChange: 0,
@@ -21,33 +25,6 @@ const Dashboard = () => {
     percentageChange: 0,
   });
 
-  // Mock data for fallback
-  const mockMonthlyExpenses = [
-    { month: "Jan", amount: 15000 },
-    { month: "Feb", amount: 16000 },
-    { month: "Mar", amount: 15500 },
-    { month: "Apr", amount: 17000 },
-    { month: "May", amount: 16500 },
-    { month: "Jun", amount: 18000 },
-    { month: "Jul", amount: 19000 },
-    { month: "Aug", amount: 18500 },
-    { month: "Sep", amount: 19500 },
-    { month: "Oct", amount: 20000 },
-  ];
-
-  const mockMonthlyRevenues = [
-    { month: "Jan", amount: 20000 },
-    { month: "Feb", amount: 22000 },
-    { month: "Mar", amount: 21000 },
-    { month: "Apr", amount: 23000 },
-    { month: "May", amount: 22500 },
-    { month: "Jun", amount: 24000 },
-    { month: "Jul", amount: 25000 },
-    { month: "Aug", amount: 26000 },
-    { month: "Sep", amount: 27000 },
-    { month: "Oct", amount: 28000 },
-  ];
-
   useEffect(() => {
     const userId = localStorage.getItem("id");
 
@@ -59,12 +36,6 @@ const Dashboard = () => {
         setFinancialGoals(response.data.financial_goals);
       } catch (error) {
         console.error("Error fetching financial goals:", error);
-        // You might want to set some default values here
-        setFinancialGoals({
-          marginGoal: 8,
-          revenueTarget: 6000,
-          retentionRate: 15,
-        });
       }
     };
 
@@ -76,7 +47,6 @@ const Dashboard = () => {
         setMonthlyExpenses(response.data.monthly_expenses);
       } catch (error) {
         console.error("Error fetching monthly expenses:", error);
-        setMonthlyExpenses(mockMonthlyExpenses);
       }
     };
 
@@ -88,7 +58,6 @@ const Dashboard = () => {
         setMonthlyRevenues(response.data.monthly_sales);
       } catch (error) {
         console.error("Error fetching monthly revenues:", error);
-        setMonthlyRevenues(mockMonthlyRevenues);
       }
     };
 

@@ -35,7 +35,11 @@ const SumUpRedirect = () => {
     handleRedirect();
   }, [location]);
 
-  return <LoadingPage />;
+  return (
+    <div style={{ height: "100vh" }}>
+      <LoadingPage />
+    </div>
+  );
 };
 
 export default SumUpRedirect;

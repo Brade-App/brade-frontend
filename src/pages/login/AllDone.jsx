@@ -16,7 +16,11 @@ const AllDone = () => {
   }, []);
 
   if (isLoading) {
-    return <LoadingPage />;
+    return (
+      <div style={{ height: "100vh" }}>
+        <LoadingPage />
+      </div>
+    );
   }
 
   return (

@@ -65,6 +65,7 @@ const LinkYourPOSAccount = ({
         // For GoCardless, we need to make an API call first
         axios
           .post("/api/gocardless/build-a-link", {
+            user_id: localStorage.getItem("id"),
             institution_id: selectedBank,
             redirect: `${window.location.origin}/gocardless-redirect`,
           })

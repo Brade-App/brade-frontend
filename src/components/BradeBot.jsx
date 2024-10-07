@@ -13,6 +13,7 @@ const BradeBot = ({ expenses, revenues, financialGoals, report }) => {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const chatbotRef = useRef(null);
+  const sendIconRef = useRef(null);
 
   const handleMessageClick = () => {
     setIsInputMode(true);
@@ -25,48 +26,30 @@ const BradeBot = ({ expenses, revenues, financialGoals, report }) => {
   };
 
   const handleSendMessage = async () => {
-    if (inputText.trim() !== "") {
+    if (inputText.trim() !== "" && !isLoading) {
       setIsInputMode(false);
       setIsLoading(true);
       setMessage(""); // Clear the message while loading
 
-      if (!report) {
-        try {
-          const response = await axios.post(
-            "/api/openai/analyze-monthly-transactions",
-            {
-              message: inputText,
-              expenses: expenses,
-              revenues: revenues,
-              financialGoals: financialGoals,
-            }
-          );
-          setMessage(response.data.response);
-          setPreviousMessage(response.data.response);
-        } catch (error) {
-          console.error("Error sending message:", error);
-          setMessage("Sorry, I encountered an error. Please try again.");
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        try {
-          const response = await axios.post(
-            "/api/openai/report-financial-performance",
-            {
-              message: inputText,
-              expenses: expenses,
-              revenues: revenues,
-            }
-          );
-          setMessage(response.data.response);
-          setPreviousMessage(response.data.response);
-        } catch (error) {
-          console.error("Error sending message:", error);
-          setMessage("Sorry, I encountered an error. Please try again.");
-        } finally {
-          setIsLoading(false);
-        }
+      try {
+        const response = await axios.post(
+          report
+            ? "/api/openai/report-financial-performance"
+            : "/api/openai/analyze-monthly-transactions",
+          {
+            message: inputText,
+            expenses: expenses,
+            revenues: revenues,
+            financialGoals: financialGoals,
+          }
+        );
+        setMessage(response.data.response);
+        setPreviousMessage(response.data.response);
+      } catch (error) {
+        console.error("Error sending message:", error);
+        setMessage("Sorry, I encountered an error. Please try again.");
+      } finally {
+        setIsLoading(false);
       }
       setInputText("");
     }
@@ -94,7 +77,12 @@ const BradeBot = ({ expenses, revenues, financialGoals, report }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (chatbotRef.current && !chatbotRef.current.contains(event.target)) {
+      if (
+        chatbotRef.current &&
+        !chatbotRef.current.contains(event.target) &&
+        sendIconRef.current &&
+        !sendIconRef.current.contains(event.target)
+      ) {
         handleCancelInput();
       }
     };
@@ -187,6 +175,7 @@ const BradeBot = ({ expenses, revenues, financialGoals, report }) => {
           )}
         </div>
         <img
+          ref={sendIconRef}
           src={
             inputText.trim() !== "" ? "/icons/send.svg" : "/icons/bradebot.svg"
           }

@@ -50,7 +50,9 @@ const BusinessInformation = () => {
   };
 
   return loading ? (
-    <LoadingPage />
+    <div style={{ height: "100vh" }}>
+      <LoadingPage />
+    </div>
   ) : (
     <div
       style={{
