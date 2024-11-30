@@ -32,7 +32,7 @@ const Dashboard = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const isMobile = windowWidth < 768;
+  const isMobile = windowWidth <= 1024;
 
   useEffect(() => {
     const userId = localStorage.getItem("id");

@@ -29,7 +29,7 @@ const Settings = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const isMobile = windowWidth < 768;
+  const isMobile = windowWidth <= 1024;
 
   useEffect(() => {
     const fetchBanks = async () => {
@@ -195,7 +195,7 @@ const Settings = () => {
     fontSize: "18px",
     color: "#222222",
     marginBottom: "20px",
-    marginTop: isMobile ? "20px" : "40px",
+    marginTop: isMobile ? "60px" : "40px",
   };
 
   const radioContainerStyle = {

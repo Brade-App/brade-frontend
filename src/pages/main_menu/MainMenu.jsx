@@ -106,7 +106,7 @@ const MainMenu = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const isMobile = windowWidth < 768;
+  const isMobile = windowWidth <= 1024;
 
   const getLinkStyle = (path) => ({
     ...linkStyle,
@@ -117,26 +117,27 @@ const MainMenu = () => {
   return (
     <div
       style={{ display: "flex", minHeight: "100vh" }}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
+      {...(isMobile && {
+        onTouchStart: onTouchStart,
+        onTouchMove: onTouchMove,
+        onTouchEnd: onTouchEnd,
+      })}
     >
       <nav
         style={{
-          width: "100%",
-          maxWidth: "200px",
+          width: "200px",
           backgroundColor: "#fcfcfc",
           display: "flex",
           flexDirection: "column",
           position: "fixed",
           height: "100vh",
-          transform: isMenuOpen ? "translateX(0)" : "translateX(-100%)",
-          transition: "transform 0.3s ease-in-out",
+          transform: isMobile
+            ? isMenuOpen
+              ? "translateX(0)"
+              : "translateX(-100%)"
+            : "translateX(0)",
+          transition: isMobile ? "transform 0.3s ease-in-out" : "none",
           zIndex: 1000,
-          "@media (min-width: 768px)": {
-            transform: "translateX(0)",
-            position: "fixed",
-          },
         }}
       >
         <div
@@ -255,7 +256,7 @@ const MainMenu = () => {
       {/* Main content area wrapper */}
       <div
         style={{
-          marginLeft: 0,
+          marginLeft: isMobile ? 0 : "200px",
           flex: 1,
           backgroundColor: "#fcfcfc",
           overflowY: "auto",

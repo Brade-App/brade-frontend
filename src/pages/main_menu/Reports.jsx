@@ -24,7 +24,7 @@ const Reports = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const isMobile = windowWidth < 768;
+  const isMobile = windowWidth <= 1024;
 
   const tabStyle = (isActive) => ({
     display: "inline-flex",
