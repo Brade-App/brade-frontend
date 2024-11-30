@@ -8,6 +8,7 @@ const Reports = () => {
   const [activeTab, setActiveTab] = useState("sales");
   const [monthlyExpenses, setMonthlyExpenses] = useState([]);
   const [monthlySales, setMonthlySales] = useState([]);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [userDetails, setUserDetails] = useState({
     businessAddress: "",
     city: "",
@@ -16,6 +17,14 @@ const Reports = () => {
   });
   const [allExpenses, setAllExpenses] = useState([]);
   const [allSales, setAllSales] = useState([]);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 768;
 
   const tabStyle = (isActive) => ({
     display: "inline-flex",
@@ -295,7 +304,12 @@ const Reports = () => {
         </div>
       </div>
       <div style={{ marginTop: "30px" }}>
-        <BradeBot expenses={allExpenses} revenues={allSales} report={true} />
+        <BradeBot
+          expenses={allExpenses}
+          revenues={allSales}
+          report={true}
+          isMobile={isMobile}
+        />
       </div>
     </div>
   );

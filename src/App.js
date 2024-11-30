@@ -31,54 +31,49 @@ import Profile from "./pages/main_menu/Profile"; // Import the new Profile compo
 
 function App() {
   return (
-    <MobileBlocker>
-      <Router>
-        <div className="App">
-          <Routes>
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/otp-confirmation" element={<OtpConfirmation />} />
-            <Route
-              path="/business-information"
-              element={<BusinessInformation />}
-            />
-            <Route path="/link-your-pos" element={<LinkYourPOS />} />
-            <Route path="/queued-pos-links" element={<QueuedPOSLinks />} />
-            <Route
-              path="/link-your-pos-account"
-              element={<LinkYourPOSAccount />}
-            />
-            <Route
-              path="/account-created-success"
-              element={<AccountCreatedSuccessly />}
-            />
-            <Route
-              path="/link-business-bank"
-              element={<LinkBusinessBankAccount />}
-            />
-            <Route path="/main-menu" element={<MainMenu />}>
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="reports" element={<Reports />} />
-              <Route path="settings" element={<Settings />} />
-              <Route path="profile" element={<Profile />} />{" "}
-              {/* Add this new route */}
-            </Route>
-            <Route path="/" element={<Navigate replace to="/signup" />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/password-reset" element={<PasswordReset />} />
-            <Route path="/forget-password" element={<ForgetPassword />} />
-            <Route path="/set-new-password" element={<SetNewPassword />} />
-            <Route path="/all-done" element={<AllDone />} />
-            <Route
-              path="/gocardless-redirect"
-              element={<GoCardlessRedirect />}
-            />
-            <Route path="/stripe-redirect" element={<StripeRedirect />} />
-            <Route path="/square-redirect" element={<SquareRedirect />} />
-            <Route path="/sumup-redirect" element={<SumUpRedirect />} />
-          </Routes>
-        </div>
-      </Router>
-    </MobileBlocker>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/otp-confirmation" element={<OtpConfirmation />} />
+          <Route
+            path="/business-information"
+            element={<BusinessInformation />}
+          />
+          <Route path="/link-your-pos" element={<LinkYourPOS />} />
+          <Route path="/queued-pos-links" element={<QueuedPOSLinks />} />
+          <Route
+            path="/link-your-pos-account"
+            element={<LinkYourPOSAccount />}
+          />
+          <Route
+            path="/account-created-success"
+            element={<AccountCreatedSuccessly />}
+          />
+          <Route
+            path="/link-business-bank"
+            element={<LinkBusinessBankAccount />}
+          />
+          <Route path="/main-menu" element={<MainMenu />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="reports" element={<Reports />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="profile" element={<Profile />} />{" "}
+            {/* Add this new route */}
+          </Route>
+          <Route path="/" element={<Navigate replace to="/signup" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/password-reset" element={<PasswordReset />} />
+          <Route path="/forget-password" element={<ForgetPassword />} />
+          <Route path="/set-new-password" element={<SetNewPassword />} />
+          <Route path="/all-done" element={<AllDone />} />
+          <Route path="/gocardless-redirect" element={<GoCardlessRedirect />} />
+          <Route path="/stripe-redirect" element={<StripeRedirect />} />
+          <Route path="/square-redirect" element={<SquareRedirect />} />
+          <Route path="/sumup-redirect" element={<SumUpRedirect />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

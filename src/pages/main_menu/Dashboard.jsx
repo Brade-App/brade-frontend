@@ -5,6 +5,7 @@ import ExpensesChart from "../../components/ExpensesChart";
 import BradeBot from "../../components/BradeBot";
 
 const Dashboard = () => {
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [monthlyExpenses, setMonthlyExpenses] = useState([]);
   const [monthlyRevenues, setMonthlyRevenues] = useState([]);
   const [financialGoals, setFinancialGoals] = useState({
@@ -24,6 +25,14 @@ const Dashboard = () => {
     value: 0,
     percentageChange: 0,
   });
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 768;
 
   useEffect(() => {
     const userId = localStorage.getItem("id");
@@ -125,6 +134,24 @@ const Dashboard = () => {
     fetchRevenuePerClientData();
   }, []);
 
+  const getButtonStyle = (isMobile) => ({
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    padding: "25px 12px",
+    backgroundColor: "#ffffff",
+    border: "1px solid rgba(96, 96, 96, 0.2)",
+    borderRadius: "25px",
+    fontSize: "14px",
+    fontWeight: 500,
+    color: "#333",
+    fontFamily: "Inter, sans-serif",
+    cursor: "pointer",
+    width: isMobile ? "100%" : "calc(33.33% - 10px)",
+    textAlign: "left",
+    boxSizing: "border-box",
+  });
+
   return (
     <div>
       <h1
@@ -140,11 +167,13 @@ const Dashboard = () => {
       <div
         style={{
           display: "flex",
+          flexDirection: isMobile ? "column" : "row",
           justifyContent: "space-between",
           marginTop: "20px",
+          gap: isMobile ? "15px" : "10px",
         }}
       >
-        <button style={buttonStyle}>
+        <button style={getButtonStyle(isMobile)}>
           <img
             src="/icons/monthlyrevenue.svg"
             alt="Monthly Revenue"
@@ -167,7 +196,7 @@ const Dashboard = () => {
             </div>
           </div>
         </button>
-        <button style={buttonStyle}>
+        <button style={getButtonStyle(isMobile)}>
           <img
             src="/icons/monthlyexpenses.svg"
             alt="Monthly Expenses"
@@ -190,7 +219,7 @@ const Dashboard = () => {
             </div>
           </div>
         </button>
-        <button style={buttonStyle}>
+        <button style={getButtonStyle(isMobile)}>
           <img
             src="/icons/revenueperclient.svg"
             alt="Revenue per Client"
@@ -216,13 +245,25 @@ const Dashboard = () => {
         style={{
           marginTop: "30px",
           display: "flex",
+          flexDirection: isMobile ? "column" : "row",
           justifyContent: "space-between",
+          gap: isMobile ? "30px" : "0",
         }}
       >
-        <div style={{ width: "48%", height: "400px" }}>
+        <div
+          style={{
+            width: isMobile ? "100%" : "48%",
+            height: "400px",
+          }}
+        >
           <RevenueChart revenues={monthlyRevenues} />
         </div>
-        <div style={{ width: "48%", height: "400px" }}>
+        <div
+          style={{
+            width: isMobile ? "100%" : "48%",
+            height: "400px",
+          }}
+        >
           <ExpensesChart expenses={monthlyExpenses} />
         </div>
       </div>
@@ -231,28 +272,11 @@ const Dashboard = () => {
           expenses={monthlyExpenses}
           revenues={monthlyRevenues}
           financialGoals={financialGoals}
+          isMobile={isMobile}
         />
       </div>
     </div>
   );
-};
-
-const buttonStyle = {
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-start",
-  padding: "25px 12px",
-  backgroundColor: "#ffffff",
-  border: "1px solid rgba(96, 96, 96, 0.2)",
-  borderRadius: "25px", // Updated to 25px
-  fontSize: "14px",
-  fontWeight: 500,
-  color: "#333",
-  fontFamily: "Inter, sans-serif",
-  cursor: "pointer",
-  width: "calc(33.33% - 10px)",
-  textAlign: "left",
-  boxSizing: "border-box",
 };
 
 const iconStyle = {

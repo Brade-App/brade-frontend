@@ -22,7 +22,7 @@ const LinkBusinessBankAccount = () => {
         // Add SANDBOXFINANCE_SFIN0000 to the list of banks
         bankOptions.unshift({
           value: "SANDBOXFINANCE_SFIN0000",
-          label: "Sandbox Finance",
+          label: "Sandbox Finance (Test)",
         });
 
         setBanks(bankOptions);

@@ -17,6 +17,36 @@ const MainMenu = () => {
     state: "",
     country: "",
   });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [touchStart, setTouchStart] = useState(null);
+  const [touchEnd, setTouchEnd] = useState(null);
+
+  // Minimum swipe distance in pixels
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e) => {
+    setTouchEnd(null);
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEnd(e.touches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+
+    const distance = touchEnd - touchStart;
+    const isLeftToRight = distance > minSwipeDistance;
+    const isRightToLeft = distance < -minSwipeDistance;
+
+    if (isLeftToRight) {
+      setIsMenuOpen(true);
+    } else if (isRightToLeft && isMenuOpen) {
+      setIsMenuOpen(false);
+    }
+  };
 
   useEffect(() => {
     if (
@@ -71,6 +101,14 @@ const MainMenu = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 768;
+
   const getLinkStyle = (path) => ({
     ...linkStyle,
     backgroundColor: selectedLink === path ? "#ffffff" : "transparent",
@@ -78,15 +116,28 @@ const MainMenu = () => {
   });
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
+    <div
+      style={{ display: "flex", minHeight: "100vh" }}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
       <nav
         style={{
-          width: "200px",
+          width: "100%",
+          maxWidth: "200px",
           backgroundColor: "#fcfcfc",
           display: "flex",
           flexDirection: "column",
           position: "fixed",
           height: "100vh",
+          transform: isMenuOpen ? "translateX(0)" : "translateX(-100%)",
+          transition: "transform 0.3s ease-in-out",
+          zIndex: 1000,
+          "@media (min-width: 768px)": {
+            transform: "translateX(0)",
+            position: "fixed",
+          },
         }}
       >
         <div
@@ -119,7 +170,10 @@ const MainMenu = () => {
           <Link
             to="/main-menu/dashboard"
             style={getLinkStyle("/main-menu/dashboard")}
-            onClick={() => setSelectedLink("/main-menu/dashboard")}
+            onClick={() => {
+              setSelectedLink("/main-menu/dashboard");
+              setIsMenuOpen(false);
+            }}
           >
             <img src="/icons/home-07.svg" alt="Dashboard" style={iconStyle} />
             Dashboard
@@ -127,7 +181,10 @@ const MainMenu = () => {
           <Link
             to="/main-menu/reports"
             style={getLinkStyle("/main-menu/reports")}
-            onClick={() => setSelectedLink("/main-menu/reports")}
+            onClick={() => {
+              setSelectedLink("/main-menu/reports");
+              setIsMenuOpen(false);
+            }}
           >
             <img
               src="/icons/waterfall-up-02.svg"
@@ -139,7 +196,10 @@ const MainMenu = () => {
           <Link
             to="/main-menu/settings"
             style={getLinkStyle("/main-menu/settings")}
-            onClick={() => setSelectedLink("/main-menu/settings")}
+            onClick={() => {
+              setSelectedLink("/main-menu/settings");
+              setIsMenuOpen(false);
+            }}
           >
             <img
               src="/icons/cpu-settings.svg"
@@ -159,7 +219,10 @@ const MainMenu = () => {
             ...getLinkStyle("/main-menu/profile"),
             textDecoration: "none",
           }}
-          onClick={() => setSelectedLink("/main-menu/profile")}
+          onClick={() => {
+            setSelectedLink("/main-menu/profile");
+            setIsMenuOpen(false);
+          }}
         >
           <img
             src={user.profilePhoto}
@@ -170,25 +233,95 @@ const MainMenu = () => {
         </Link>
       </nav>
 
+      {/* Keep the overlay for closing the menu */}
+      {isMenuOpen && (
+        <div
+          onClick={() => setIsMenuOpen(false)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: 999,
+            display: "none",
+            "@media (max-width: 767px)": {
+              display: "block",
+            },
+          }}
+        />
+      )}
+
       {/* Main content area wrapper */}
       <div
         style={{
-          marginLeft: "200px",
+          marginLeft: 0,
           flex: 1,
           backgroundColor: "#fcfcfc",
           overflowY: "auto",
+          width: "100%",
+          position: "relative",
+          "@media (min-width: 768px)": {
+            marginLeft: "200px",
+            width: "calc(100% - 200px)",
+          },
         }}
       >
-        {/* Actual main content with margins */}
+        {isMobile && (
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            style={{
+              position: "absolute",
+              top: "20px",
+              right: "20px",
+              zIndex: 1001,
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: "8px",
+            }}
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              {isMenuOpen ? (
+                // X icon when menu is open
+                <>
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </>
+              ) : (
+                // Hamburger icon when menu is closed
+                <>
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </>
+              )}
+            </svg>
+          </button>
+        )}
         <main
           style={{
-            margin: "20px 10px 20px 0px",
-            padding: "10px 20px",
+            margin: "10px",
+            padding: "10px",
             backgroundColor: "#ffffff",
-            minHeight: "calc(100vh - 40px)", // Subtract top and bottom margins
+            minHeight: "calc(100vh - 20px)",
             boxSizing: "border-box",
             border: "1px solid #efefef",
             borderRadius: "12px",
+            "@media (min-width: 768px)": {
+              margin: "20px 10px 20px 0px",
+              padding: "20px",
+            },
           }}
         >
           <Outlet />
@@ -209,6 +342,10 @@ const linkStyle = {
   fontSize: "14px",
   fontWeight: 500,
   padding: "10px",
+  "@media (max-width: 767px)": {
+    fontSize: "16px", // Larger text on mobile
+    padding: "15px", // Larger touch target
+  },
 };
 
 const iconStyle = {
@@ -220,11 +357,15 @@ const iconStyle = {
 const userProfileStyle = {
   display: "flex",
   alignItems: "center",
-  margin: "10px 20px",
+  margin: "10px",
   padding: "2px",
   backgroundColor: "#ffffff",
   border: "1px solid #efefef",
   borderRadius: "12px",
+  "@media (max-width: 767px)": {
+    margin: "10px 15px", // Larger margins on mobile
+    padding: "5px",
+  },
 };
 
 const profilePhotoStyle = {

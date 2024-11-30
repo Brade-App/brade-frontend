@@ -3,7 +3,7 @@ import axios from "axios";
 import PropTypes from "prop-types";
 import LoadingPage from "./LoadingPage";
 
-const BradeBot = ({ expenses, revenues, financialGoals, report }) => {
+const BradeBot = ({ expenses, revenues, financialGoals, report, isMobile }) => {
   const [message, setMessage] = useState(
     "👋 Hi there, I'm BradeBot! I'm here to answer any questions about your salon's finances"
   );
@@ -96,15 +96,15 @@ const BradeBot = ({ expenses, revenues, financialGoals, report }) => {
   const chatbotStyle = isFullScreen
     ? {
         position: "fixed",
-        top: "20px", // Adjust this value to match your navbar height
-        left: "200px", // Adjust this value to match your sidebar width
+        top: isMobile ? "10px" : "20px",
+        left: isMobile ? "10px" : "200px",
         right: "10px",
-        bottom: "60px",
+        bottom: isMobile ? "50px" : "60px",
         zIndex: 100,
         width: "auto",
         height: "auto",
         maxWidth: "none",
-        borderRadius: "14px",
+        borderRadius: isMobile ? "0" : "14px",
       }
     : {
         height: "130px",
@@ -232,6 +232,7 @@ BradeBot.propTypes = {
   revenues: PropTypes.array.isRequired,
   financialGoals: PropTypes.array.isRequired,
   month: PropTypes.string,
+  isMobile: PropTypes.bool,
 };
 
 export default BradeBot;

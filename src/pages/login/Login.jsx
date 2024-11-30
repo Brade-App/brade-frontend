@@ -7,11 +7,13 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     try {
       const response = await axios.post("/api/signin_user", {
@@ -23,7 +25,6 @@ const Login = () => {
         localStorage.setItem("id", response.data.id);
         localStorage.setItem("access_token", response.data.access_token);
         localStorage.setItem("refresh_token", response.data.refresh_token);
-        // Navigate to the main menu or dashboard
         navigate("/main-menu");
       } else {
         setError(response.data.error || "Invalid email or password");
@@ -33,6 +34,8 @@ const Login = () => {
       setError(
         error.response?.data?.error || "An error occurred during sign up"
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -112,14 +115,15 @@ const Login = () => {
           <div style={{ width: "100%", marginTop: "20px" }}>
             <button
               type="submit"
+              disabled={isLoading}
               style={{
                 width: "100%",
                 height: "52px",
-                backgroundColor: "#f564a9",
+                backgroundColor: isLoading ? "#cccccc" : "#f564a9",
                 color: "white",
                 border: "none",
                 borderRadius: "8px",
-                cursor: "pointer",
+                cursor: isLoading ? "not-allowed" : "pointer",
                 fontSize: "16px",
                 fontFamily: "Inter, sans-serif",
                 fontWeight: 500,
@@ -128,7 +132,7 @@ const Login = () => {
                 justifyContent: "center",
               }}
             >
-              Log In
+              {isLoading ? "Logging in..." : "Log In"}
             </button>
           </div>
         </form>

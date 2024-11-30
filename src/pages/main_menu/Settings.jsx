@@ -21,6 +21,15 @@ const Settings = () => {
   const [hasNotificationChanges, setHasNotificationChanges] = useState(false);
   const [monthlySummary, setMonthlySummary] = useState(false);
   const [actionRequired, setActionRequired] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 768;
 
   useEffect(() => {
     const fetchBanks = async () => {
@@ -134,7 +143,7 @@ const Settings = () => {
     backgroundColor: "#ffffff",
     border: "1.5px solid #efefef",
     borderRadius: "8px",
-    width: "calc(33.33% - 10px)", // Adjust width to fit three buttons with some gap
+    width: isMobile ? "100%" : "calc(33.33% - 10px)",
     textAlign: "left",
     fontFamily: "Inter, sans-serif",
     position: "relative",
@@ -186,7 +195,7 @@ const Settings = () => {
     fontSize: "18px",
     color: "#222222",
     marginBottom: "20px",
-    marginTop: "40px", // Add some space above the new title
+    marginTop: isMobile ? "20px" : "40px",
   };
 
   const radioContainerStyle = {
@@ -444,7 +453,14 @@ const Settings = () => {
             </button>
           )}
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            justifyContent: "space-between",
+            gap: isMobile ? "20px" : "10px",
+          }}
+        >
           <button style={buttonStyle}>
             <span style={labelStyle}>Set Margin Goal</span>
             <span style={descriptionStyle}>
@@ -544,7 +560,14 @@ const Settings = () => {
             </button>
           )}
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            justifyContent: "space-between",
+            gap: isMobile ? "20px" : "10px",
+          }}
+        >
           <button style={buttonStyle}>
             <span style={labelStyle}>Monthly Summary</span>
             <span style={descriptionStyle}>
@@ -622,7 +645,13 @@ const Settings = () => {
               </div>
             </div>
           </button>
-          <button style={{ ...buttonStyle, visibility: "hidden" }}>
+          <button
+            style={{
+              ...buttonStyle,
+              visibility: "hidden",
+              display: isMobile ? "none" : "block",
+            }}
+          >
             <span style={labelStyle}>Email Notifications</span>
             <span style={descriptionStyle}>
               Receive notifications via email
@@ -657,7 +686,14 @@ const Settings = () => {
       </div>
 
       <h1 style={titleStyle}>Integrations</h1>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          flexWrap: isMobile ? "nowrap" : "wrap",
+          gap: "20px",
+        }}
+      >
         {[
           { name: "stripe", src: "/images/logostripe.png" },
           { name: "square", src: "/images/logosquare.png" },
@@ -672,7 +708,7 @@ const Settings = () => {
             key={pos.name}
             style={{
               ...buttonStyle,
-              width: "calc(33.33% - 14px)",
+              width: isMobile ? "100%" : "calc(33.33% - 14px)",
               marginBottom: "0",
             }}
           >
