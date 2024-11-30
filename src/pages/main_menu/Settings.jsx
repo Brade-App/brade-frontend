@@ -6,11 +6,6 @@ const Settings = () => {
   const [marginGoal, setMarginGoal] = useState(8);
   const [revenueTarget, setRevenueTarget] = useState(6000);
   const [retentionRate, setRetentionRate] = useState(15);
-  const [connectedPOS, setConnectedPOS] = useState([
-    "stripe",
-    "square",
-    "sumup",
-  ]);
 
   const [banks, setBanks] = useState([]);
   const [selectedBank, setSelectedBank] = useState("");

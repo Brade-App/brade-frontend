@@ -2,12 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import BradeBot from "../../components/BradeBot";
 import jsPDF from "jspdf";
-import { InsertComment } from "@mui/icons-material";
 
 const Reports = () => {
   const [activeTab, setActiveTab] = useState("sales");
-  const [monthlyExpenses, setMonthlyExpenses] = useState([]);
-  const [monthlySales, setMonthlySales] = useState([]);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [userDetails, setUserDetails] = useState({
     businessAddress: "",
@@ -75,7 +72,6 @@ const Reports = () => {
   const generatePDF = async (month, activeTab) => {
     const monthDate = new Date(currentYear, month - 1, 1);
     const monthName = monthDate.toLocaleString("default", { month: "long" });
-    const yearString = monthDate.getFullYear().toString();
 
     try {
       const expenses = await fetchMonthlyExpenses(month, currentYear);
@@ -89,7 +85,8 @@ const Reports = () => {
         userDetails.postcode,
         activeTab,
         expenses,
-        sales
+        sales,
+        isMobile
       );
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -323,7 +320,8 @@ const generatePDFContent = (
   postalCode,
   activeTab,
   monthlyExpenses,
-  monthlySales
+  monthlySales,
+  isMobile
 ) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
@@ -417,7 +415,7 @@ const generatePDFContent = (
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.setTextColor(0, 0, 0);
-  if (activeTab != "income") {
+  if (activeTab !== "income") {
     headers.forEach((header, i) => {
       doc.text(header, i === 0 ? 15 : pageWidth - 35, startY + 10);
     });
@@ -509,12 +507,54 @@ const generatePDFContent = (
 
   // Generate PDF as Blob
   const pdfBlob = doc.output("blob");
-
-  // Create a URL for the Blob
   const pdfUrl = URL.createObjectURL(pdfBlob);
 
-  // Open PDF in a new tab
-  window.open(pdfUrl, "_blank");
+  try {
+    if (isMobile) {
+      // For mobile devices, use a more reliable download method
+      const link = document.createElement("a");
+      link.style.display = "none";
+      link.href = pdfUrl;
+      link.download = `${activeTab}_report_${month}.pdf`;
+
+      // Cleanup function
+      const cleanup = () => {
+        try {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(pdfUrl);
+        } catch (e) {
+          console.warn("Cleanup error:", e);
+        }
+      };
+
+      // Add to DOM
+      document.body.appendChild(link);
+
+      // Trigger download
+      link.click();
+
+      // Clean up after a short delay
+      setTimeout(cleanup, 1000);
+    } else {
+      // Desktop behavior remains the same
+      const newWindow = window.open(pdfUrl, "_blank");
+      if (newWindow) {
+        newWindow.onbeforeunload = () => {
+          URL.revokeObjectURL(pdfUrl);
+        };
+      }
+    }
+  } catch (error) {
+    console.error("PDF generation error:", error);
+    // Ensure URL is always cleaned up even if there's an error
+    setTimeout(() => {
+      try {
+        URL.revokeObjectURL(pdfUrl);
+      } catch (e) {
+        console.warn("URL cleanup error:", e);
+      }
+    }, 1000);
+  }
 };
 
 const getDataForActiveTab = (activeTab, monthlyExpenses, monthlySales) => {
