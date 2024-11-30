@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import Profile from "./Profile";
 
 const MainMenu = () => {
   const location = useLocation();

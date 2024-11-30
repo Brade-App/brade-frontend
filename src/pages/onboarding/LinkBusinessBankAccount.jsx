@@ -51,10 +51,6 @@ const LinkBusinessBankAccount = () => {
     }
   };
 
-  const handleSkip = () => {
-    navigate("/account-created-success");
-  };
-
   return (
     <div
       style={{
