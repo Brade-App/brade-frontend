@@ -1,4 +1,4 @@
-# Brade Web App
+# Brade - AI Financial Assistant
 
 Brade is a financial management application designed initially for salon owners. It helps track expenses, revenues, and financial goals while providing AI-powered insights through BradeBot.
 
