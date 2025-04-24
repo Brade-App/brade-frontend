@@ -60,7 +60,7 @@ function App() {
             <Route path="profile" element={<Profile />} />{" "}
             {/* Add this new route */}
           </Route>
-          <Route path="/" element={<Navigate replace to="/signup" />} />
+          <Route path="/" element={<Navigate replace to="/login" />} />
           <Route path="/login" element={<Login />} />
           <Route path="/password-reset" element={<PasswordReset />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
