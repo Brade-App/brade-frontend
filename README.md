@@ -1,70 +1,113 @@
-# Getting Started with Create React App
+# Brade Web App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Brade is a financial management application designed initially for salon owners. It helps track expenses, revenues, and financial goals while providing AI-powered insights through BradeBot.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **User Authentication**
 
-### `npm start`
+  - Secure sign-up and login
+  - OAuth 2.0 integration with major payment processors:
+    - Stripe, Square, SumUp for revenue data sync
+    - GoCardless for expense data sync
+  - Test account available (test@bradehq.com / Test123)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- **Dashboard**
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+  - Overview of financial performance
+  - Quick access to key metrics
+  - Visual representation of data
 
-### `npm test`
+- **Reports**
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+  - Detailed financial analysis
+  - Customizable reporting periods
+  - Export capabilities
 
-### `npm run build`
+- **BradeBot**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+  - AI-powered financial assistant
+  - Answers questions about your salon's finances
+  - Provides insights and recommendations
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- **Profile & Settings**
+  - User profile management
+  - Business information configuration
+  - Account settings (disabled for test account)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Getting Started
 
-### `npm run eject`
+### Prerequisites
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Node.js (v14 or higher)
+- npm (v6 or higher)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Installation
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. Clone the repository:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+git clone [repository-url]
+cd brade-web-app
+```
 
-## Learn More
+2. Install dependencies:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+npm install
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+3. Start the development server:
 
-### Code Splitting
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+The app will open in your browser at [http://localhost:3000](http://localhost:3000)
 
-### Analyzing the Bundle Size
+### Test Account
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+For quick access to the app's features, use the test account:
 
-### Making a Progressive Web App
+- Email: test@bradehq.com
+- Password: Test123
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+Note: The test account has limited functionality (Settings and Profile features are disabled).
 
-### Advanced Configuration
+## Project Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```
+src/
+├── components/     # Reusable UI components
+├── pages/         # Main application pages
+│   ├── login/     # Login page
+│   ├── onboarding/# Signup and onboarding
+│   └── main_menu/ # Main application interface
+├── api/           # API integration
+└── assets/        # Images, icons, and other static files
+```
 
-### Deployment
+## Technologies Used
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- **Frontend**
 
-### `npm run build` fails to minify
+  - React.js
+  - React Router for navigation
+  - Axios for API calls
+  - CSS-in-JS for styling
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **AI Integration**
+  - OpenAI API for BradeBot functionality
+  - Custom financial analysis algorithms
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## Support
+
+For support, email busayosalisu@gmail.com or open an issue in the repository.

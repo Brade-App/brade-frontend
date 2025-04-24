@@ -160,6 +160,27 @@ const Login = () => {
             Sign up
           </span>
         </p>
+        <div style={{ marginTop: "10px", textAlign: "center" }}>
+          <button
+            onClick={() => {
+              setEmail("test@bradehq.com");
+              setPassword("Test123");
+            }}
+            style={{
+              backgroundColor: "transparent",
+              border: "1px solid #222222",
+              color: "#222222",
+              padding: "8px 16px",
+              borderRadius: "8px",
+              cursor: "pointer",
+              fontSize: "14px",
+              fontFamily: "Inter, sans-serif",
+              fontWeight: 500,
+            }}
+          >
+            Use Test Account
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -5,7 +5,6 @@ import {
   Routes,
   Navigate, // Make sure this is included if you're using it
 } from "react-router-dom";
-import MobileBlocker from "./components/MobileBlocker";
 import SignUp from "./pages/onboarding/SignUp";
 import OtpConfirmation from "./pages/onboarding/OtpConfirmation";
 import BusinessInformation from "./pages/onboarding/BusinessInformation";

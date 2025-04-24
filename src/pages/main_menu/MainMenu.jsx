@@ -107,11 +107,18 @@ const MainMenu = () => {
   }, []);
 
   const isMobile = windowWidth <= 1024;
+  const isTestAccount = user.email === "test@bradehq.com";
 
   const getLinkStyle = (path) => ({
     ...linkStyle,
     backgroundColor: selectedLink === path ? "#ffffff" : "transparent",
     border: selectedLink === path ? "1px solid #efefef" : "none",
+    ...((path === "/main-menu/settings" || path === "/main-menu/profile") &&
+      isTestAccount && {
+        opacity: 0.5,
+        cursor: "not-allowed",
+        pointerEvents: "none",
+      }),
   });
 
   return (
@@ -196,7 +203,11 @@ const MainMenu = () => {
           <Link
             to="/main-menu/settings"
             style={getLinkStyle("/main-menu/settings")}
-            onClick={() => {
+            onClick={(e) => {
+              if (isTestAccount) {
+                e.preventDefault();
+                return;
+              }
               setSelectedLink("/main-menu/settings");
               setIsMenuOpen(false);
             }}
@@ -218,8 +229,17 @@ const MainMenu = () => {
             ...userProfileStyle,
             ...getLinkStyle("/main-menu/profile"),
             textDecoration: "none",
+            ...(isTestAccount && {
+              opacity: 0.5,
+              cursor: "not-allowed",
+              pointerEvents: "none",
+            }),
           }}
-          onClick={() => {
+          onClick={(e) => {
+            if (isTestAccount) {
+              e.preventDefault();
+              return;
+            }
             setSelectedLink("/main-menu/profile");
             setIsMenuOpen(false);
           }}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
 import LoadingPage from "./LoadingPage";
@@ -62,14 +62,14 @@ const BradeBot = ({ expenses, revenues, financialGoals, report, isMobile }) => {
     }
   };
 
-  const handleCancelInput = () => {
+  const handleCancelInput = useCallback(() => {
     setIsInputMode(false);
     setInputText("");
     if (previousMessage) {
       setMessage(previousMessage);
       setPreviousMessage("");
     }
-  };
+  }, [previousMessage]);
 
   const toggleFullScreen = () => {
     setIsFullScreen(!isFullScreen);
@@ -91,7 +91,7 @@ const BradeBot = ({ expenses, revenues, financialGoals, report, isMobile }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [previousMessage]);
+  }, [previousMessage, handleCancelInput]);
 
   const chatbotStyle = isFullScreen
     ? {
